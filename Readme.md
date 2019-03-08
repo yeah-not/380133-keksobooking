@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
-* Студент: [Sergii Yeromin](https://up.htmlacademy.ru/javascript/14/user/380133).
-* Наставник: `Неизвестно`.
+* Студент: [Александр Енотов](https://up.htmlacademy.ru/javascript/14/user/380133).
+* Наставник: `Восхитительный Енот`.
 
 ---
 
