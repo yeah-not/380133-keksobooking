@@ -61,7 +61,7 @@ var getPin = function (avatars) {
   pin.offer.features = features;
 
   return pin;
-}
+};
 
 var getPins = function () {
   var pins = [];
@@ -72,40 +72,35 @@ var getPins = function () {
   }
 
   return pins;
-}
+};
 
 var PIN_TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 var PIN_TYPES = ['palace', 'flat', 'house', 'bungalo'];
 var PIN_CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
 var PIN_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var PIN_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
-var PIN_WIDTH = 40;
-var PIN_HEIGHT = 40;
+var PIN_WIDTH = 50;
+var PIN_HEIGHT = 70;
 var PIN_Y = [130, 630];
 var PINS_NUM = 8;
 
 var map = document.querySelector('.map');
-var pinX = [0, map.offsetWidth];
+var pinX = [PIN_WIDTH / 2, map.offsetWidth - PIN_WIDTH / 2];
 
 var pins = getPins();
 
-var pinsListEl = document.querySelector('.map__pins');
+var pinsContainer = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('template').content.querySelector('.map__pin');
 
-var pinWidth = pinTemplate.offsetWidth;
-console.log(pinWidth);
-
-// for (var i = 0; i < 1; i++) {
 for (var i = 0; i < pins.length; i++) {
-  var pinEl = pinTemplate.cloneNode(true);
-  var pinImg = pinEl.querySelector('img')
+  var pin = pinTemplate.cloneNode(true);
+  var pinImg = pin.querySelector('img');
 
-  pinEl.style = 'left: ' + pins[i].location.x + 'px; top: ' + pins[i].location.y + 'px;';
-  // pinEl.style = 'left: ' + 0 + 'px; top: ' + (170 - 70) + 'px;';
+  pin.style = 'left: ' + (pins[i].location.x - PIN_WIDTH / 2) + 'px; top: ' + pins[i].location.y + 'px;';
   pinImg.src = pins[i].author.avatar;
   pinImg.alt = pins[i].offer.title;
 
-  pinsListEl.appendChild(pinEl);
+  pinsContainer.appendChild(pin);
 }
 
 
@@ -117,3 +112,4 @@ map.classList.remove('map--faded');
 // Доработать
 // "guests": число, случайное количество гостей, которое можно разместить
 // "location": { «x»: Значение ограничено раз мерами блока, в котором перетаскивается метка.
+// Координаты X и Y, которые вы вставите в разметку, это не координатылевого верхнего угла блока метки, а координаты, на которые указываетметка своим острым концом. Чтобы найти эту координату нужно учестьразмеры элемента с меткой.
