@@ -79,6 +79,8 @@ var PIN_TYPES = ['palace', 'flat', 'house', 'bungalo'];
 var PIN_CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
 var PIN_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var PIN_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+var PIN_WIDTH = 40;
+var PIN_HEIGHT = 40;
 var PIN_Y = [130, 630];
 var PINS_NUM = 8;
 
@@ -89,8 +91,23 @@ var pins = getPins();
 
 var pinsListEl = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('template').content.querySelector('.map__pin');
-var pinEl = pinTemplate.cloneNode(true);
-pinsListEl.appendChild(pinEl);
+
+var pinWidth = pinTemplate.offsetWidth;
+console.log(pinWidth);
+
+// for (var i = 0; i < 1; i++) {
+for (var i = 0; i < pins.length; i++) {
+  var pinEl = pinTemplate.cloneNode(true);
+  var pinImg = pinEl.querySelector('img')
+
+  pinEl.style = 'left: ' + pins[i].location.x + 'px; top: ' + pins[i].location.y + 'px;';
+  // pinEl.style = 'left: ' + 0 + 'px; top: ' + (170 - 70) + 'px;';
+  pinImg.src = pins[i].author.avatar;
+  pinImg.alt = pins[i].offer.title;
+
+  pinsListEl.appendChild(pinEl);
+}
+
 
 // console.log(getPins());
 
