@@ -4,27 +4,27 @@ var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
 };
 
-var getNotice = function (avatars) {
-  var notice = {
+var getPin = function (avatars) {
+  var pin = {
     author: {
       avatar: ''
     },
     offer: {
-      title: NOTICE_TITLES[getRandomInt(0, NOTICE_TITLES.length - 1)],
+      title: PIN_TITLES[getRandomInt(0, PIN_TITLES.length - 1)],
       address: '',
       price: getRandomInt(1000, 1000000),
-      type: NOTICE_TYPES[getRandomInt(0, NOTICE_TYPES.length - 1)],
+      type: PIN_TYPES[getRandomInt(0, PIN_TYPES.length - 1)],
       rooms: getRandomInt(1, 5),
       guests: getRandomInt(0, 50),
-      checkin: NOTICE_CHECK_IN_OUT[getRandomInt(0, NOTICE_CHECK_IN_OUT.length - 1)],
-      checkout: NOTICE_CHECK_IN_OUT[getRandomInt(0, NOTICE_CHECK_IN_OUT.length - 1)],
-      features: NOTICE_FEATURES[getRandomInt(0, NOTICE_FEATURES.length - 1)],
+      checkin: PIN_CHECK_IN_OUT[getRandomInt(0, PIN_CHECK_IN_OUT.length - 1)],
+      checkout: PIN_CHECK_IN_OUT[getRandomInt(0, PIN_CHECK_IN_OUT.length - 1)],
+      features: PIN_FEATURES[getRandomInt(0, PIN_FEATURES.length - 1)],
       description: '',
       photos: [],
     },
     location: {
-      x: getRandomInt(noticeX[0], noticeX[1]),
-      y: getRandomInt(NOTICE_Y[0], NOTICE_Y[1])
+      x: getRandomInt(pinX[0], pinX[1]),
+      y: getRandomInt(PIN_Y[0], PIN_Y[1])
     }
   };
 
@@ -36,58 +36,63 @@ var getNotice = function (avatars) {
   } while (avatars.indexOf(avatar) >= 0);
 
   avatars.push(avatar);
-  notice.author.avatar = 'img/avatars/user0' + avatar + '.png';
+  pin.author.avatar = 'img/avatars/user0' + avatar + '.png';
 
   // "address": строка, адрес предложения, вида "{{location.x}}, {{location.y}}", например, "600, 350"
-  notice.offer.address = notice.location.x + ', ' + notice.location.y;
+  pin.offer.address = pin.location.x + ', ' + pin.location.y;
 
   // "photos": массив из строк расположенных в произвольном порядке
   var photos = [];
   var photo = '';
 
-  for (var j = 0; j < NOTICE_PHOTOS.length; j++) {
+  for (var j = 0; j < PIN_PHOTOS.length; j++) {
     do {
-      photo = NOTICE_PHOTOS[getRandomInt(0, NOTICE_PHOTOS.length - 1)];
+      photo = PIN_PHOTOS[getRandomInt(0, PIN_PHOTOS.length - 1)];
     } while (photos.indexOf(photo) >= 0);
     photos[j] = photo;
   }
 
-  notice.offer.photos = photos;
+  pin.offer.photos = photos;
 
   // "features": массив строк случайной длины из ниже предложенных: "wifi", "dishwasher", "parking", "washer", "elevator", "conditioner",
   var features = [];
-  features = NOTICE_FEATURES.slice();
-  features.length = getRandomInt(1, NOTICE_FEATURES.length);
-  notice.offer.features = features;
+  features = PIN_FEATURES.slice();
+  features.length = getRandomInt(1, PIN_FEATURES.length);
+  pin.offer.features = features;
 
-  return notice;
+  return pin;
 }
 
-var getNotices = function () {
-  var notices = [];
+var getPins = function () {
+  var pins = [];
   var avatars = [];
 
-  for (var i = 0; i < NOTICES_NUM; i++) {
-    notices[i] = getNotice(avatars);
+  for (var i = 0; i < PINS_NUM; i++) {
+    pins[i] = getPin(avatars);
   }
 
-  return notices;
+  return pins;
 }
 
-var NOTICE_TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
-var NOTICE_TYPES = ['palace', 'flat', 'house', 'bungalo'];
-var NOTICE_CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
-var NOTICE_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
-var NOTICE_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
-var NOTICE_Y = [130, 630];
-var NOTICES_NUM = 8;
+var PIN_TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
+var PIN_TYPES = ['palace', 'flat', 'house', 'bungalo'];
+var PIN_CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
+var PIN_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
+var PIN_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+var PIN_Y = [130, 630];
+var PINS_NUM = 8;
 
 var map = document.querySelector('.map');
-var noticeX = [0, map.offsetWidth];
+var pinX = [0, map.offsetWidth];
 
-// getNotices();
+var pins = getPins();
 
-console.log(getNotices());
+var pinsListEl = document.querySelector('.map__pins');
+var pinTemplate = document.querySelector('template').content.querySelector('.map__pin');
+var pinEl = pinTemplate.cloneNode(true);
+pinsListEl.appendChild(pinEl);
+
+// console.log(getPins());
 
 map.classList.remove('map--faded');
 
