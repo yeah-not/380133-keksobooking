@@ -98,6 +98,72 @@ var renderPins = function (pins, template) {
   return fragment;
 };
 
+var renderCard = function (pin) {
+  var card = cardTemplate.cloneNode(true);
+  card.querySelector('.popup__title').textContent = pin.offer.title;
+  card.querySelector('.popup__avatar').src = pin.author.avatar;
+  card.querySelector('.popup__type').textContent = PIN_TYPES_RUS[PIN_TYPES.indexOf(pin.offer.type)];
+  card.querySelector('.popup__text--address').textContent = pin.offer.address;
+  card.querySelector('.popup__text--time').textContent = 'Заезд после ' + pin.offer.checkin + ', выезд до ' + pin.offer.checkout;
+
+  // Русское название типа
+  var pinTypeIndex = PIN_TYPES.indexOf(pin.offer.type);
+  card.querySelector('.popup__type').textContent = PIN_TYPES_RUS[pinTypeIndex];
+
+  // Цена с разбивкой на пробелы
+  var price = numberWithSpaces(pin.offer.price, 3);
+  card.querySelector('.popup__text--price').textContent = price + '₽/ночь';
+
+  // Выведите количество гостейи комнат offer.rooms и offer.guests
+  // в блок .popup__text--capacityстрокойвида {{offer.rooms}} комнаты для {{offer.guests}} гостей. Например,2 комнаты для 3 гостей.
+  var roomsNum = pin.offer.rooms;
+  var roomsNumRemainder = roomsNum % 10;
+  var guestsNum = pin.offer.guests;
+  var guestsNumRemainder = guestsNum % 10;
+  var roomsLabel = 'комната';
+  var guestsLabel = 'гостя';
+
+  if (roomsNumRemainder > 1 && roomsNumRemainder < 5) {
+    roomsLabel = 'комнаты';
+  } else if (roomsNumRemainder >= 5) {
+    roomsLabel = 'комнат';
+  }
+
+  if (guestsNumRemainder > 1) {
+    guestsLabel = 'гостей';
+  }
+
+  card.querySelector('.popup__text--capacity').textContent = roomsNum + ' ' + roomsLabel + ' для ' + guestsNum + ' ' + guestsLabel;
+
+  // .popup__features - все доступные удобства в объявлении списком
+  var features = pin.offer.features;
+  var featureTemplate = cardTemplate.querySelector('.popup__feature');
+  var featuresList = card.querySelector('.popup__features');
+
+  featureTemplate.classList.remove(featureTemplate.classList[1]);
+  featuresList.innerHTML = '';
+
+  for (var i = 0; i < features.length; i++) {
+    var featureElement = featureTemplate.cloneNode();
+    featureElement.classList.add(featureElement.classList[0] + '--' + features[i]);
+  }
+
+  // .popup__photos - все фотографии из списка offer.photos
+  var photos = pin.offer.photos;
+  var photoTemplate = cardTemplate.querySelector('.popup__photo');
+  var photosList = card.querySelector('.popup__photos');
+
+  photosList.innerHTML = '';
+
+  for (var j = 0; j < photos.length; j++) {
+    var photoElement = photoTemplate.cloneNode();
+    photoElement.src = photos[j];
+    photosList.appendChild(photoElement);
+  }
+
+  return card;
+};
+
 var PIN_TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 var PIN_TYPES = ['palace', 'flat', 'house', 'bungalo'];
 var PIN_TYPES_RUS = ['Дворец', 'Квартира', 'Дом', 'Бунгало'];
@@ -132,72 +198,8 @@ var cardTemplate = document.querySelector('template').content.querySelector('.ma
 var pins = getPins(PINS_NUM, pinsData);
 pinsContainer.appendChild(renderPins(pins, pinTemplate));
 
-var card = cardTemplate.cloneNode(true);
-card.querySelector('.popup__title').textContent = pins[0].offer.title;
-card.querySelector('.popup__avatar').src = pins[0].author.avatar;
-card.querySelector('.popup__type').textContent = PIN_TYPES_RUS[PIN_TYPES.indexOf(pins[0].offer.type)];
-card.querySelector('.popup__text--address').textContent = pins[0].offer.address;
-card.querySelector('.popup__text--time').textContent = 'Заезд после ' + pins[0].offer.checkin + ', выезд до ' + pins[0].offer.checkout;
-
-// Русское название типа
-var pinTypeIndex = PIN_TYPES.indexOf(pins[0].offer.type);
-card.querySelector('.popup__type').textContent = PIN_TYPES_RUS[pinTypeIndex];
-
-// Цена с разбивкой на пробелы
-var price = numberWithSpaces(pins[0].offer.price, 3);
-card.querySelector('.popup__text--price').textContent = price + '₽/ночь';
-
-// Выведите количество гостейи комнат offer.rooms и offer.guests
-// в блок .popup__text--capacityстрокойвида {{offer.rooms}} комнаты для {{offer.guests}} гостей. Например,2 комнаты для 3 гостей.
-var roomsNum = pins[0].offer.rooms;
-var roomsNumRemainder = roomsNum % 10;
-var guestsNum = pins[0].offer.guests;
-var guestsNumRemainder = guestsNum % 10;
-var roomsLabel = 'комната';
-var guestsLabel = 'гостя';
-
-if (roomsNumRemainder > 1 && roomsNumRemainder < 5) {
-  roomsLabel = 'комнаты';
-} else if (roomsNumRemainder >= 5) {
-  roomsLabel = 'комнат';
-}
-
-if (guestsNumRemainder > 1) {
-  guestsLabel = 'гостей';
-}
-
-card.querySelector('.popup__text--capacity').textContent = roomsNum + ' ' + roomsLabel + ' для ' + guestsNum + ' ' + guestsLabel;
-
-// .popup__features - все доступные удобства в объявлении списком
-var features = pins[0].offer.features;
-var featureTemplate = cardTemplate.querySelector('.popup__feature');
-var featuresList = card.querySelector('.popup__features');
-
-featureTemplate.classList.remove(featureTemplate.classList[1]);
-featuresList.innerHTML = '';
-
-for (var j = 0; j < features.length; j++) {
-  var featureElement = featureTemplate.cloneNode();
-  featureElement.classList.add(featureElement.classList[0] + '--' + features[j]);
-}
-
-// .popup__photos - все фотографии из списка offer.photos
-var photos = pins[0].offer.photos;
-var photoTemplate = cardTemplate.querySelector('.popup__photo');
-var photosList = card.querySelector('.popup__photos');
-
-photosList.innerHTML = '';
-
-for (var k = 0; k < photos.length; k++) {
-  var photoElement = photoTemplate.cloneNode();
-  photoElement.src = photos[k];
-  photosList.appendChild(photoElement);
-}
-
-// console.log(pins[0]);
-
-map.insertBefore(card, filtersContainer);
-
+var firstCard = renderCard(pins[0]);
+map.insertBefore(firstCard, filtersContainer);
 
 map.classList.remove('map--faded');
 
