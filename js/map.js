@@ -78,6 +78,27 @@ var getPins = function () {
   return pins;
 };
 
+var renderPin = function (pin, template) {
+  var pinElement = template.cloneNode(true);
+  var pinImgElement = pinElement.querySelector('img');
+
+  pinElement.style = 'left: ' + (pin.location.x - PIN_WIDTH / 2) + 'px; top: ' + pin.location.y + 'px;';
+  pinImgElement.src = pin.author.avatar;
+  pinImgElement.alt = pin.offer.title;
+
+  return pinElement;
+};
+
+var renderPins = function (pins, template) {
+  var fragment = document.createDocumentFragment();
+
+  for (var i = 0; i < pins.length; i++) {
+    fragment.appendChild(renderPin(pins[i], template));
+  }
+
+  return fragment;
+};
+
 var PIN_TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 var PIN_TYPES = ['palace', 'flat', 'house', 'bungalo'];
 var PIN_TYPES_RUS = ['Дворец', 'Квартира', 'Дом', 'Бунгало'];
@@ -92,23 +113,13 @@ var PINS_NUM = 8;
 var map = document.querySelector('.map');
 var pinX = [PIN_WIDTH / 2, map.offsetWidth - PIN_WIDTH / 2];
 
-var pins = getPins();
-
 var pinsContainer = document.querySelector('.map__pins');
 var filtersContainer = document.querySelector('.map__filters-container');
 var pinTemplate = document.querySelector('template').content.querySelector('.map__pin');
 var cardTemplate = document.querySelector('template').content.querySelector('.map__card');
 
-for (var i = 0; i < pins.length; i++) {
-  var pin = pinTemplate.cloneNode(true);
-  var pinImg = pin.querySelector('img');
-
-  pin.style = 'left: ' + (pins[i].location.x - PIN_WIDTH / 2) + 'px; top: ' + pins[i].location.y + 'px;';
-  pinImg.src = pins[i].author.avatar;
-  pinImg.alt = pins[i].offer.title;
-
-  pinsContainer.appendChild(pin);
-}
+var pins = getPins();
+pinsContainer.appendChild(renderPins(pins, pinTemplate));
 
 var card = cardTemplate.cloneNode(true);
 card.querySelector('.popup__title').textContent = pins[0].offer.title;
