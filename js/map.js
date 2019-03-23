@@ -8,27 +8,27 @@ function numberWithSpaces(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
-var getPin = function (avatars) {
+var getPin = function (avatars, data) {
   var pin = {
     author: {
       avatar: ''
     },
     offer: {
-      title: PIN_TITLES[getRandomInt(0, PIN_TITLES.length - 1)],
+      title: data.titles[getRandomInt(0, PIN_TITLES.length - 1)],
       address: '',
       price: getRandomInt(1000, 1000000),
-      type: PIN_TYPES[getRandomInt(0, PIN_TYPES.length - 1)],
+      type: data.types[getRandomInt(0, PIN_TYPES.length - 1)],
       rooms: getRandomInt(1, 5),
       guests: getRandomInt(1, 30),
-      checkin: PIN_CHECK_IN_OUT[getRandomInt(0, PIN_CHECK_IN_OUT.length - 1)],
-      checkout: PIN_CHECK_IN_OUT[getRandomInt(0, PIN_CHECK_IN_OUT.length - 1)],
-      features: PIN_FEATURES[getRandomInt(0, PIN_FEATURES.length - 1)],
+      checkin: data.checkInOut[getRandomInt(0, PIN_CHECK_IN_OUT.length - 1)],
+      checkout: data.checkInOut[getRandomInt(0, PIN_CHECK_IN_OUT.length - 1)],
+      features: data.features[getRandomInt(0, PIN_FEATURES.length - 1)],
       description: '',
       photos: [],
     },
     location: {
-      x: getRandomInt(pinX[0], pinX[1]),
-      y: getRandomInt(PIN_Y[0], PIN_Y[1])
+      x: getRandomInt(data.xRange[0], data.xRange[1]),
+      y: getRandomInt(data.yRange[0], data.yRange[1])
     }
   };
 
@@ -49,9 +49,9 @@ var getPin = function (avatars) {
   var photos = [];
   var photo = '';
 
-  for (var j = 0; j < PIN_PHOTOS.length; j++) {
+  for (var j = 0; j < data.photos.length; j++) {
     do {
-      photo = PIN_PHOTOS[getRandomInt(0, PIN_PHOTOS.length - 1)];
+      photo = data.photos[getRandomInt(0, data.photos.length - 1)];
     } while (photos.indexOf(photo) >= 0);
     photos[j] = photo;
   }
@@ -59,20 +59,19 @@ var getPin = function (avatars) {
   pin.offer.photos = photos;
 
   // "features": массив строк случайной длины из ниже предложенных: "wifi", "dishwasher", "parking", "washer", "elevator", "conditioner",
-  var features = [];
-  features = PIN_FEATURES.slice();
-  features.length = getRandomInt(1, PIN_FEATURES.length);
+  var features = data.features.slice();
+  features.length = getRandomInt(1, data.features.length);
   pin.offer.features = features;
 
   return pin;
 };
 
-var getPins = function () {
+var getPins = function (num, data) {
   var pins = [];
   var avatars = [];
 
-  for (var i = 0; i < PINS_NUM; i++) {
-    pins[i] = getPin(avatars);
+  for (var i = 0; i < num; i++) {
+    pins[i] = getPin(avatars, data);
   }
 
   return pins;
@@ -113,12 +112,24 @@ var PINS_NUM = 8;
 var map = document.querySelector('.map');
 var pinX = [PIN_WIDTH / 2, map.offsetWidth - PIN_WIDTH / 2];
 
+var pinsData = {
+  titles: PIN_TITLES,
+  types: PIN_TYPES,
+  typesRus: PIN_TYPES_RUS,
+  checkInOut: PIN_CHECK_IN_OUT,
+  features: PIN_FEATURES,
+  photos: PIN_PHOTOS,
+  dimensions: [PIN_WIDTH, PIN_HEIGHT],
+  xRange: pinX,
+  yRange: PIN_Y
+};
+
 var pinsContainer = document.querySelector('.map__pins');
 var filtersContainer = document.querySelector('.map__filters-container');
 var pinTemplate = document.querySelector('template').content.querySelector('.map__pin');
 var cardTemplate = document.querySelector('template').content.querySelector('.map__card');
 
-var pins = getPins();
+var pins = getPins(PINS_NUM, pinsData);
 pinsContainer.appendChild(renderPins(pins, pinTemplate));
 
 var card = cardTemplate.cloneNode(true);
