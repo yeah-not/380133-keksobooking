@@ -111,39 +111,35 @@ var renderPins = function (adverts, template) {
   return fragment;
 };
 
+var getAdvertCapacity = function (rooms, guests) {
+  var roomsRemainder = rooms % 10;
+  var guestsRemainder = guests % 10;
+  var roomsLabel = 'комната';
+  var guestsLabel = 'гостя';
+
+  if (roomsRemainder > 1 && roomsRemainder < 5) {
+    roomsLabel = 'комнаты';
+  } else if (roomsRemainder >= 5) {
+    roomsLabel = 'комнат';
+  }
+
+  if (guestsRemainder > 1) {
+    guestsLabel = 'гостей';
+  }
+
+  return rooms + ' ' + roomsLabel + ' для ' + guests + ' ' + guestsLabel;
+};
+
 var renderCard = function (advert, locale) {
   var card = cardTemplate.cloneNode(true);
   card.querySelector('.popup__title').textContent = advert.offer.title;
   card.querySelector('.popup__description').textContent = advert.offer.description;
+  card.querySelector('.popup__text--address').textContent = advert.offer.address;
   card.querySelector('.popup__avatar').src = advert.author.avatar;
   card.querySelector('.popup__type').textContent = capitalizeFirstLetter(locale[advert.offer.type]);
-  card.querySelector('.popup__text--address').textContent = advert.offer.address;
+  card.querySelector('.popup__text--price').textContent = numberWithSpaces(advert.offer.price, 3) + '₽/ночь';
+  card.querySelector('.popup__text--capacity').textContent = getAdvertCapacity(advert.offer.rooms, advert.offer.guests);
   card.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout;
-
-  // Цена с разбивкой на пробелы
-  var price = numberWithSpaces(advert.offer.price, 3);
-  card.querySelector('.popup__text--price').textContent = price + '₽/ночь';
-
-  // Выведите количество гостейи комнат offer.rooms и offer.guests
-  // в блок .popup__text--capacityстрокойвида {{offer.rooms}} комнаты для {{offer.guests}} гостей. Например,2 комнаты для 3 гостей.
-  var roomsNum = advert.offer.rooms;
-  var roomsNumRemainder = roomsNum % 10;
-  var guestsNum = advert.offer.guests;
-  var guestsNumRemainder = guestsNum % 10;
-  var roomsLabel = 'комната';
-  var guestsLabel = 'гостя';
-
-  if (roomsNumRemainder > 1 && roomsNumRemainder < 5) {
-    roomsLabel = 'комнаты';
-  } else if (roomsNumRemainder >= 5) {
-    roomsLabel = 'комнат';
-  }
-
-  if (guestsNumRemainder > 1) {
-    guestsLabel = 'гостей';
-  }
-
-  card.querySelector('.popup__text--capacity').textContent = roomsNum + ' ' + roomsLabel + ' для ' + guestsNum + ' ' + guestsLabel;
 
   // .popup__features - все доступные удобства в объявлении списком
   var features = advert.offer.features;
