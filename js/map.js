@@ -5,9 +5,22 @@ var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
 };
 
-function numberWithSpaces(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-}
+var numberWithSpaces = function (number) {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+};
+
+var shuffleArray = function (srcArray) {
+  var copiedArray = srcArray.slice();
+  var destArray = [];
+
+  while (copiedArray.length > 0) {
+    var random = getRandomInt(0, copiedArray.length - 1);
+    var element = copiedArray.splice(random, 1)[0];
+    destArray.push(element);
+  }
+
+  return destArray;
+};
 
 var generateAdvert = function (index, data) {
   var advert = {
@@ -23,9 +36,9 @@ var generateAdvert = function (index, data) {
       guests: getRandomInt(1, 30),
       checkin: data.checkInOut[getRandomInt(0, data.checkInOut.length - 1)],
       checkout: data.checkInOut[getRandomInt(0, data.checkInOut.length - 1)],
-      features: data.features[getRandomInt(0, data.checkInOut.length - 1)],
+      features: data.features.slice(1, getRandomInt(0, data.features.length)),
       description: '',
-      photos: []
+      photos: shuffleArray(data.photos)
     },
     location: {
       x: getRandomInt(data.xRange[0], data.xRange[1]),
@@ -35,24 +48,6 @@ var generateAdvert = function (index, data) {
 
   // "address": строка, адрес предложения, вида "{{location.x}}, {{location.y}}", например, "600, 350"
   advert.offer.address = advert.location.x + ', ' + advert.location.y;
-
-  // "photos": массив из строк расположенных в произвольном порядке
-  var photos = [];
-  var photo = '';
-
-  for (var j = 0; j < data.photos.length; j++) {
-    do {
-      photo = data.photos[getRandomInt(0, data.photos.length - 1)];
-    } while (photos.indexOf(photo) >= 0);
-    photos[j] = photo;
-  }
-
-  advert.offer.photos = photos;
-
-  // "features": массив строк случайной длины из ниже предложенных: "wifi", "dishwasher", "parking", "washer", "elevator", "conditioner",
-  var features = data.features.slice();
-  features.length = getRandomInt(1, data.features.length);
-  advert.offer.features = features;
 
   return advert;
 };
