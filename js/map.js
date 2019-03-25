@@ -101,6 +101,7 @@ var renderPins = function (pins, template) {
 var renderCard = function (pin) {
   var card = cardTemplate.cloneNode(true);
   card.querySelector('.popup__title').textContent = pin.offer.title;
+  card.querySelector('.popup__description').textContent = pin.offer.description;
   card.querySelector('.popup__avatar').src = pin.author.avatar;
   card.querySelector('.popup__type').textContent = PIN_TYPES_RUS[PIN_TYPES.indexOf(pin.offer.type)];
   card.querySelector('.popup__text--address').textContent = pin.offer.address;
@@ -146,6 +147,7 @@ var renderCard = function (pin) {
   for (var i = 0; i < features.length; i++) {
     var featureElement = featureTemplate.cloneNode();
     featureElement.classList.add(featureElement.classList[0] + '--' + features[i]);
+    featuresList.appendChild(featureElement);
   }
 
   // .popup__photos - все фотографии из списка offer.photos
