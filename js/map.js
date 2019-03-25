@@ -1,5 +1,28 @@
 'use strict';
 
+// Константы
+var ADVERTS_AMOUNT = 8;
+var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
+var TYPES = ['palace', 'flat', 'house', 'bungalo'];
+// var TYPES_RUS = ['Дворец', 'Квартира', 'Дом', 'Бунгало'];
+var CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
+var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
+var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+var AVATAR_PATH = 'img/avatars/user';
+var WIDTH = 50;
+var HEIGHT = 70;
+var Y_RANGE = [130, 630];
+var LOCALE_RUS = {
+  'palace': 'дворец',
+  'flat': 'квартира',
+  'house': 'дом',
+  'bungalo': 'бунгало'
+};
+
+// Переменные
+var map = document.querySelector('.map');
+var xRange = [WIDTH / 2, map.offsetWidth - WIDTH / 2];
+
 // Функции
 var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
@@ -7,6 +30,10 @@ var getRandomInt = function (min, max) {
 
 var numberWithSpaces = function (number) {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+};
+
+var capitalizeFirstLetter = function (string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
 var shuffleArray = function (srcArray) {
@@ -84,18 +111,14 @@ var renderPins = function (adverts, template) {
   return fragment;
 };
 
-var renderCard = function (advert) {
+var renderCard = function (advert, locale) {
   var card = cardTemplate.cloneNode(true);
   card.querySelector('.popup__title').textContent = advert.offer.title;
   card.querySelector('.popup__description').textContent = advert.offer.description;
   card.querySelector('.popup__avatar').src = advert.author.avatar;
-  card.querySelector('.popup__type').textContent = TYPES_RUS[TYPES.indexOf(advert.offer.type)];
+  card.querySelector('.popup__type').textContent = capitalizeFirstLetter(locale[advert.offer.type]);
   card.querySelector('.popup__text--address').textContent = advert.offer.address;
   card.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout;
-
-  // Русское название типа
-  var advertTypeIndex = TYPES.indexOf(advert.offer.type);
-  card.querySelector('.popup__type').textContent = TYPES_RUS[advertTypeIndex];
 
   // Цена с разбивкой на пробелы
   var price = numberWithSpaces(advert.offer.price, 3);
@@ -152,36 +175,20 @@ var renderCard = function (advert) {
   return card;
 };
 
-// Константы
-var ADVERTS_AMOUNT = 8;
-var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
-var TYPES = ['palace', 'flat', 'house', 'bungalo'];
-var TYPES_RUS = ['Дворец', 'Квартира', 'Дом', 'Бунгало'];
-var CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
-var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
-var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
-var AVATAR_PATH = 'img/avatars/user';
-var WIDTH = 50;
-var HEIGHT = 70;
-var Y_RANGE = [130, 630];
-
-// Переменные
-var map = document.querySelector('.map');
-var xRange = [WIDTH / 2, map.offsetWidth - WIDTH / 2];
-
 // Данные
+var locale = LOCALE_RUS;
 var advertsData = {
   titles: TITLES,
   types: TYPES,
-  typesRus: TYPES_RUS,
   checkInOut: CHECK_IN_OUT,
   features: FEATURES,
   photos: PHOTOS,
   avatarPath: AVATAR_PATH,
   dimensions: [WIDTH, HEIGHT],
   xRange: xRange,
-  yRange: Y_RANGE
+  yRange: Y_RANGE,
 };
+
 
 // DOM-элементы
 var pinsContainer = document.querySelector('.map__pins');
@@ -196,7 +203,7 @@ var cardTemplate = template.content.querySelector('.map__card');
 var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
 pinsContainer.appendChild(renderPins(adverts, pinTemplate));
 
-var firstCard = renderCard(adverts[0]);
+var firstCard = renderCard(adverts[0], locale);
 map.insertBefore(firstCard, filtersContainer);
 
 map.classList.remove('map--faded');
