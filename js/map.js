@@ -9,39 +9,29 @@ function numberWithSpaces(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
-var generateAdvert = function (avatars, data) {
+var generateAdvert = function (index, data) {
   var advert = {
     author: {
-      avatar: ''
+      avatar: data.avatarPath + (index < 10 ? '0' : '') + (index + 1) + '.png'
     },
     offer: {
-      title: data.titles[getRandomInt(0, TITLES.length - 1)],
+      title: data.titles[getRandomInt(0, data.titles.length - 1)],
       address: '',
       price: getRandomInt(1000, 1000000),
-      type: data.types[getRandomInt(0, TYPES.length - 1)],
+      type: data.types[getRandomInt(0, data.types.length - 1)],
       rooms: getRandomInt(1, 5),
       guests: getRandomInt(1, 30),
-      checkin: data.checkInOut[getRandomInt(0, CHECK_IN_OUT.length - 1)],
-      checkout: data.checkInOut[getRandomInt(0, CHECK_IN_OUT.length - 1)],
-      features: data.features[getRandomInt(0, FEATURES.length - 1)],
+      checkin: data.checkInOut[getRandomInt(0, data.checkInOut.length - 1)],
+      checkout: data.checkInOut[getRandomInt(0, data.checkInOut.length - 1)],
+      features: data.features[getRandomInt(0, data.checkInOut.length - 1)],
       description: '',
-      photos: [],
+      photos: []
     },
     location: {
       x: getRandomInt(data.xRange[0], data.xRange[1]),
       y: getRandomInt(data.yRange[0], data.yRange[1])
     }
   };
-
-  // 'avatar': Адреса изображений не повторяются
-  var avatar = 0;
-
-  do {
-    avatar = getRandomInt(1, 8);
-  } while (avatars.indexOf(avatar) >= 0);
-
-  avatars.push(avatar);
-  advert.author.avatar = 'img/avatars/user0' + avatar + '.png';
 
   // "address": строка, адрес предложения, вида "{{location.x}}, {{location.y}}", например, "600, 350"
   advert.offer.address = advert.location.x + ', ' + advert.location.y;
@@ -69,10 +59,9 @@ var generateAdvert = function (avatars, data) {
 
 var generateAdverts = function (amount, data) {
   var adverts = [];
-  var avatars = [];
 
   for (var i = 0; i < amount; i++) {
-    adverts[i] = generateAdvert(avatars, data);
+    adverts[i] = generateAdvert(i, data);
   }
 
   return adverts;
@@ -176,6 +165,7 @@ var TYPES_RUS = ['Дворец', 'Квартира', 'Дом', 'Бунгало']
 var CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+var AVATAR_PATH = 'img/avatars/user';
 var WIDTH = 50;
 var HEIGHT = 70;
 var Y_RANGE = [130, 630];
@@ -192,6 +182,7 @@ var advertsData = {
   checkInOut: CHECK_IN_OUT,
   features: FEATURES,
   photos: PHOTOS,
+  avatarPath: AVATAR_PATH,
   dimensions: [WIDTH, HEIGHT],
   xRange: xRange,
   yRange: Y_RANGE
