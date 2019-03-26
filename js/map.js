@@ -89,28 +89,6 @@ var generateAdverts = function (amount, data) {
   return adverts;
 };
 
-var renderPin = function (advert, template) {
-  var pin = template.cloneNode(true);
-  var pinImg = pin.querySelector('img');
-
-  pin.style.left = (advert.location.x - WIDTH / 2) + 'px';
-  pin.style.top = advert.location.y + 'px';
-  pinImg.src = advert.author.avatar;
-  pinImg.alt = advert.offer.title;
-
-  return pin;
-};
-
-var renderPins = function (adverts, template) {
-  var fragment = document.createDocumentFragment();
-
-  for (var i = 0; i < adverts.length; i++) {
-    fragment.appendChild(renderPin(adverts[i], template));
-  }
-
-  return fragment;
-};
-
 var getAdvertCapacity = function (rooms, guests) {
   var roomsRemainder = rooms % 10;
   var guestsRemainder = guests % 10;
@@ -130,8 +108,43 @@ var getAdvertCapacity = function (rooms, guests) {
   return rooms + ' ' + roomsLabel + ' для ' + guests + ' ' + guestsLabel;
 };
 
-var renderCard = function (advert, locale) {
-  var card = cardTemplate.cloneNode(true);
+var renderFragment = function (data, callback, template) {
+  var fragment = document.createDocumentFragment();
+
+  for (var i = 0; i < data.length; i++) {
+    fragment.appendChild(callback(data[i], template));
+  }
+
+  return fragment;
+};
+
+var renderPin = function (advert, template) {
+  var pin = template.cloneNode(true);
+  var pinImg = pin.querySelector('img');
+
+  pin.style.left = (advert.location.x - WIDTH / 2) + 'px';
+  pin.style.top = advert.location.y + 'px';
+  pinImg.src = advert.author.avatar;
+  pinImg.alt = advert.offer.title;
+
+  return pin;
+};
+
+var renderCardFeature = function (featureName, template) {
+  var feature = template.cloneNode();
+  feature.classList.add(feature.classList[0] + '--' + featureName);
+  return feature;
+};
+
+var renderCardPhoto = function (photoSrc, template) {
+  var photo = template.cloneNode();
+  photo.src = photoSrc;
+  return photo;
+};
+
+var renderCard = function (advert, template, locale) {
+  var card = template.cloneNode(true);
+
   card.querySelector('.popup__title').textContent = advert.offer.title;
   card.querySelector('.popup__description').textContent = advert.offer.description;
   card.querySelector('.popup__text--address').textContent = advert.offer.address;
@@ -143,30 +156,20 @@ var renderCard = function (advert, locale) {
 
   // .popup__features - все доступные удобства в объявлении списком
   var features = advert.offer.features;
-  var featureTemplate = cardTemplate.querySelector('.popup__feature');
   var featuresList = card.querySelector('.popup__features');
+  var featureTemplate = template.querySelector('.popup__feature');
 
   featureTemplate.classList.remove(featureTemplate.classList[1]);
   featuresList.innerHTML = '';
-
-  for (var i = 0; i < features.length; i++) {
-    var featureElement = featureTemplate.cloneNode();
-    featureElement.classList.add(featureElement.classList[0] + '--' + features[i]);
-    featuresList.appendChild(featureElement);
-  }
+  featuresList.appendChild(renderFragment(features, renderCardFeature, featureTemplate));
 
   // .popup__photos - все фотографии из списка offer.photos
   var photos = advert.offer.photos;
-  var photoTemplate = cardTemplate.querySelector('.popup__photo');
   var photosList = card.querySelector('.popup__photos');
+  var photoTemplate = template.querySelector('.popup__photo');
 
   photosList.innerHTML = '';
-
-  for (var j = 0; j < photos.length; j++) {
-    var photoElement = photoTemplate.cloneNode();
-    photoElement.src = photos[j];
-    photosList.appendChild(photoElement);
-  }
+  photosList.appendChild(renderFragment(photos, renderCardPhoto, photoTemplate));
 
   return card;
 };
@@ -197,10 +200,9 @@ var cardTemplate = template.content.querySelector('.map__card');
 // Старт программы
 // ---
 var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
-pinsContainer.appendChild(renderPins(adverts, pinTemplate));
 
-var firstCard = renderCard(adverts[0], locale);
-map.insertBefore(firstCard, filtersContainer);
+pinsContainer.appendChild(renderFragment(adverts, renderPin, pinTemplate));
+map.insertBefore(renderCard(adverts[0], cardTemplate, locale), filtersContainer);
 
 map.classList.remove('map--faded');
 
