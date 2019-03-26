@@ -4,7 +4,6 @@
 var ADVERTS_AMOUNT = 8;
 var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
-// var TYPES_RUS = ['Дворец', 'Квартира', 'Дом', 'Бунгало'];
 var CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
@@ -49,6 +48,12 @@ var shuffleArray = function (srcArray) {
   return destArray;
 };
 
+var removeChildren = function (elem) {
+  while (elem.lastChild) {
+    elem.removeChild(elem.lastChild);
+  }
+};
+
 var generateAdvert = function (index, data) {
   var advert = {
     author: {
@@ -60,7 +65,7 @@ var generateAdvert = function (index, data) {
       price: getRandomInt(1000, 1000000),
       type: data.types[getRandomInt(0, data.types.length - 1)],
       rooms: getRandomInt(1, 5),
-      guests: getRandomInt(1, 30),
+      guests: getRandomInt(1, 25),
       checkin: data.checkInOut[getRandomInt(0, data.checkInOut.length - 1)],
       checkout: data.checkInOut[getRandomInt(0, data.checkInOut.length - 1)],
       features: data.features.slice(1, getRandomInt(0, data.features.length)),
@@ -73,7 +78,6 @@ var generateAdvert = function (index, data) {
     }
   };
 
-  // "address": строка, адрес предложения, вида "{{location.x}}, {{location.y}}", например, "600, 350"
   advert.offer.address = advert.location.x + ', ' + advert.location.y;
 
   return advert;
@@ -154,21 +158,19 @@ var renderCard = function (advert, template, locale) {
   card.querySelector('.popup__text--capacity').textContent = getAdvertCapacity(advert.offer.rooms, advert.offer.guests);
   card.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout;
 
-  // .popup__features - все доступные удобства в объявлении списком
   var features = advert.offer.features;
   var featuresList = card.querySelector('.popup__features');
   var featureTemplate = template.querySelector('.popup__feature');
 
   featureTemplate.classList.remove(featureTemplate.classList[1]);
-  featuresList.innerHTML = '';
+  removeChildren(featuresList);
   featuresList.appendChild(renderFragment(features, renderCardFeature, featureTemplate));
 
-  // .popup__photos - все фотографии из списка offer.photos
   var photos = advert.offer.photos;
   var photosList = card.querySelector('.popup__photos');
   var photoTemplate = template.querySelector('.popup__photo');
 
-  photosList.innerHTML = '';
+  removeChildren(photosList);
   photosList.appendChild(renderFragment(photos, renderCardPhoto, photoTemplate));
 
   return card;
@@ -205,9 +207,3 @@ pinsContainer.appendChild(renderFragment(adverts, renderPin, pinTemplate));
 map.insertBefore(renderCard(adverts[0], cardTemplate, locale), filtersContainer);
 
 map.classList.remove('map--faded');
-
-
-// Доработать
-// "guests": число, случайное количество гостей, которое можно разместить
-// "location": { «x»: Значение ограничено раз мерами блока, в котором перетаскивается метка.
-// Координаты X и Y, которые вы вставите в разметку, это не координатылевого верхнего угла блока метки, а координаты, на которые указываетметка своим острым концом. Чтобы найти эту координату нужно учестьразмеры элемента с меткой.
