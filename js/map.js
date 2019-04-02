@@ -52,6 +52,12 @@ var removeChildren = function (elem) {
   }
 };
 
+var removeElements = function (elements) {
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].remove();
+  }
+};
+
 // Функции
 // ----------
 var generateAdvert = function (index, data) {
@@ -200,21 +206,29 @@ var onMainPinMouseUp = function () {
   activatePage();
 };
 
+var activatePage = function () {
+  var oldPins = pinsContainer.querySelectorAll('.map__pin:not(.map__pin--main)');
+  var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
+  var pins = renderFragment(adverts, renderPin, pinTemplate);
+
+  removeElements(oldPins);
+  pinsContainer.appendChild(pins);
+  // map.insertBefore(renderCard(adverts[0], cardTemplate, locale), filtersContainer);
+
+  map.classList.remove('map--faded');
+  advertForm.classList.remove('ad-form--disabled');
+
+  for (var i = 0; i < advertFormElements.length; i++) {
+    advertFormElements[i].disabled = false;
+  }
+};
+
 var deactivatePage = function () {
   map.classList.add('map--faded');
   advertForm.classList.add('ad-form--disabled');
 
   for (var i = 0; i < advertFormElements.length; i++) {
     advertFormElements[i].disabled = true;
-  }
-};
-
-var activatePage = function () {
-  map.classList.remove('map--faded');
-  advertForm.classList.remove('ad-form--disabled');
-
-  for (var i = 0; i < advertFormElements.length; i++) {
-    advertFormElements[i].disabled = false;
   }
 };
 
@@ -255,10 +269,3 @@ var cardTemplate = template.content.querySelector('.map__card');
 deactivatePage();
 setAddress(false);
 mainPin.addEventListener('mouseup', onMainPinMouseUp);
-
-// var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
-// pinsContainer.appendChild(renderFragment(adverts, renderPin, pinTemplate));
-
-// map.insertBefore(renderCard(adverts[0], cardTemplate, locale), filtersContainer);
-
-// map.classList.remove('map--faded');
