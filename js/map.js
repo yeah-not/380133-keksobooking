@@ -1,6 +1,7 @@
 'use strict';
 
 // Константы
+// ----------
 var ADVERTS_AMOUNT = 8;
 var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
@@ -18,11 +19,8 @@ var LOCALE_RUS = {
   'bungalo': 'бунгало'
 };
 
-// Переменные
-var map = document.querySelector('.map');
-var xRange = [WIDTH / 2, map.offsetWidth - WIDTH / 2];
-
-// Функции
+// Утилиты
+// ----------
 var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
 };
@@ -54,6 +52,8 @@ var removeChildren = function (elem) {
   }
 };
 
+// Функции
+// ----------
 var generateAdvert = function (index, data) {
   var advert = {
     author: {
@@ -176,7 +176,53 @@ var renderCard = function (advert, template, locale) {
   return card;
 };
 
+var setAddress = function (isPinActive) {
+  var addressInput = advertForm.querySelector('#address');
+  var pinHeight = Math.round(mainPin.offsetHeight / 2);
+  var pinWidth = Math.round(mainPin.offsetWidth / 2);
+
+  if (isPinActive) {
+    pinHeight = mainPin.offsetHeight + 22;
+  }
+
+  var location = {
+    x: mainPin.offsetLeft + pinWidth,
+    y: mainPin.offsetTop + pinHeight
+  };
+
+  addressInput.value = location.x + ', ' + location.y;
+};
+
+// Обработчики
+// ----------
+var onMainPinMouseUp = function () {
+  setAddress(true);
+  activatePage();
+};
+
+var deactivatePage = function () {
+  map.classList.add('map--faded');
+  advertForm.classList.add('ad-form--disabled');
+
+  for (var i = 0; i < advertFormElements.length; i++) {
+    advertFormElements[i].disabled = true;
+  }
+};
+
+var activatePage = function () {
+  map.classList.remove('map--faded');
+  advertForm.classList.remove('ad-form--disabled');
+
+  for (var i = 0; i < advertFormElements.length; i++) {
+    advertFormElements[i].disabled = false;
+  }
+};
+
 // Данные
+// ----------
+var map = document.querySelector('.map');
+var xRange = [WIDTH / 2, map.offsetWidth - WIDTH / 2];
+
 var locale = LOCALE_RUS;
 var advertsData = {
   titles: TITLES,
@@ -190,20 +236,29 @@ var advertsData = {
   yRange: Y_RANGE,
 };
 
-
 // DOM-элементы
+// ----------
 var pinsContainer = document.querySelector('.map__pins');
 var filtersContainer = document.querySelector('.map__filters-container');
+var advertForm = document.querySelector('.ad-form');
+var advertFormElements = advertForm.querySelectorAll('.ad-form__element');
+var mainPin = document.querySelector('.map__pin--main');
+
+// Шаблоны
+// ----------
 var template = document.querySelector('template');
 var pinTemplate = template.content.querySelector('.map__pin');
 var cardTemplate = template.content.querySelector('.map__card');
 
-// ---
 // Старт программы
-// ---
-var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
+// ----------
+deactivatePage();
+setAddress(false);
+mainPin.addEventListener('mouseup', onMainPinMouseUp);
 
-pinsContainer.appendChild(renderFragment(adverts, renderPin, pinTemplate));
-map.insertBefore(renderCard(adverts[0], cardTemplate, locale), filtersContainer);
+// var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
+// pinsContainer.appendChild(renderFragment(adverts, renderPin, pinTemplate));
 
-map.classList.remove('map--faded');
+// map.insertBefore(renderCard(adverts[0], cardTemplate, locale), filtersContainer);
+
+// map.classList.remove('map--faded');
