@@ -1,6 +1,10 @@
 'use strict';
 
 // Константы
+// ----------
+var ESC_KEYCODE = 27;
+// var ENTER_KEYCODE = 13;
+
 var ADVERTS_AMOUNT = 8;
 var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
@@ -8,9 +12,16 @@ var CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var AVATAR_PATH = 'img/avatars/user';
-var WIDTH = 50;
-var HEIGHT = 70;
 var Y_RANGE = [130, 630];
+var PIN_SIZES = {
+  width: 50,
+  height: 70
+};
+var MAIN_PIN_SIZES = {
+  width: 65,
+  height: 65,
+  pointerHeight: 22
+};
 var LOCALE_RUS = {
   'palace': 'дворец',
   'flat': 'квартира',
@@ -18,11 +29,8 @@ var LOCALE_RUS = {
   'bungalo': 'бунгало'
 };
 
-// Переменные
-var map = document.querySelector('.map');
-var xRange = [WIDTH / 2, map.offsetWidth - WIDTH / 2];
-
-// Функции
+// Утилиты
+// ----------
 var getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
 };
@@ -54,6 +62,38 @@ var removeChildren = function (elem) {
   }
 };
 
+var removeElements = function (elements) {
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].remove();
+  }
+};
+
+var setBoolAttributes = function (elements, attribute) {
+  for (var i = 0; i < elements.length; i++) {
+    elements[i][attribute] = true;
+  }
+};
+
+var removeBoolAttributes = function (elements, attribute) {
+  for (var i = 0; i < elements.length; i++) {
+    elements[i][attribute] = false;
+  }
+};
+
+var renderFragment = function (data, callback, template) {
+  var fragment = document.createDocumentFragment();
+
+  for (var i = 0; i < data.length; i++) {
+    fragment.appendChild(callback(data[i], template));
+  }
+
+  return fragment;
+};
+
+// Функции
+// ----------
+
+// Объявления
 var generateAdvert = function (index, data) {
   var advert = {
     author: {
@@ -112,40 +152,35 @@ var getAdvertCapacity = function (rooms, guests) {
   return rooms + ' ' + roomsLabel + ' для ' + guests + ' ' + guestsLabel;
 };
 
-var renderFragment = function (data, callback, template) {
-  var fragment = document.createDocumentFragment();
-
-  for (var i = 0; i < data.length; i++) {
-    fragment.appendChild(callback(data[i], template));
-  }
-
-  return fragment;
-};
-
+// Метки
 var renderPin = function (advert, template) {
   var pin = template.cloneNode(true);
   var pinImg = pin.querySelector('img');
 
-  pin.style.left = (advert.location.x - WIDTH / 2) + 'px';
+  pin.style.left = (advert.location.x - PIN_SIZES.width / 2) + 'px';
   pin.style.top = advert.location.y + 'px';
   pinImg.src = advert.author.avatar;
   pinImg.alt = advert.offer.title;
 
+  pin.addEventListener('click', function (evt) {
+    onPinClick(evt, advert);
+  });
+
   return pin;
 };
 
-var renderCardFeature = function (featureName, template) {
-  var feature = template.cloneNode();
-  feature.classList.add(feature.classList[0] + '--' + featureName);
-  return feature;
+var renderPins = function () {
+  var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
+  var pinsFragment = renderFragment(adverts, renderPin, pinTemplate);
+  pinsContainer.appendChild(pinsFragment);
 };
 
-var renderCardPhoto = function (photoSrc, template) {
-  var photo = template.cloneNode();
-  photo.src = photoSrc;
-  return photo;
+var removePins = function () {
+  var pins = pinsContainer.querySelectorAll('.map__pin:not(.map__pin--main)');
+  removeElements(pins);
 };
 
+// Карточка
 var renderCard = function (advert, template, locale) {
   var card = template.cloneNode(true);
 
@@ -176,7 +211,142 @@ var renderCard = function (advert, template, locale) {
   return card;
 };
 
+var renderCardFeature = function (featureName, template) {
+  var feature = template.cloneNode();
+  feature.classList.add(feature.classList[0] + '--' + featureName);
+  return feature;
+};
+
+var renderCardPhoto = function (photoSrc, template) {
+  var photo = template.cloneNode();
+  photo.src = photoSrc;
+  return photo;
+};
+
+var insertCard = function (advert) {
+  removeCard();
+
+  var card = renderCard(advert, cardTemplate, locale);
+  map.insertBefore(card, filtersContainer);
+
+  var cardClose = card.querySelector('.popup__close');
+  cardClose.addEventListener('click', onCardCloseClick);
+  document.addEventListener('keydown', onEscPressForCard);
+};
+
+var removeCard = function () {
+  var card = map.querySelector('.map__card');
+
+  if (card) {
+    card.remove();
+    document.removeEventListener('keydown', onEscPressForCard);
+  }
+
+};
+
+// Страница
+var deactivatePage = function () {
+  deactivateMap();
+  disableForm();
+};
+
+var activatePage = function () {
+  refreshMap();
+  activateMap();
+  enableForm();
+};
+
+// Карта
+var refreshMap = function () {
+  removePins();
+  removeCard();
+  renderPins();
+};
+
+var deactivateMap = function () {
+  map.classList.add('map--faded');
+};
+
+var activateMap = function () {
+  map.classList.remove('map--faded');
+};
+
+// Форма
+var disableForm = function () {
+  form.classList.add('ad-form--disabled');
+  setBoolAttributes(formFieldsets, 'disabled');
+};
+
+var enableForm = function () {
+  form.classList.remove('ad-form--disabled');
+  removeBoolAttributes(formFieldsets, 'disabled');
+};
+
+var setAddressByPin = function (isPinActive) {
+  var marginTop = MAIN_PIN_SIZES.height / 2;
+  var marginLeft = MAIN_PIN_SIZES.width / 2;
+
+  if (isPinActive) {
+    marginTop = MAIN_PIN_SIZES.height + MAIN_PIN_SIZES.pointerHeight;
+  }
+
+  var location = {
+    x: mainPin.offsetLeft + marginLeft,
+    y: mainPin.offsetTop + marginTop
+  };
+
+  formAddress.value = location.x + ', ' + location.y;
+};
+
+// Обработчики
+// ----------
+var onMainPinMouseUp = function () {
+  setAddressByPin(true);
+
+  if (isPageActive) {
+    refreshMap();
+  } else {
+    activatePage();
+  }
+};
+
+var onPinClick = function (evt, advert) {
+  evt.preventDefault();
+  insertCard(advert);
+};
+
+var onCardCloseClick = function (evt) {
+  evt.preventDefault();
+  removeCard();
+};
+
+var onEscPressForCard = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    removeCard();
+  }
+};
+
+// DOM-элементы
+// ----------
+var map = document.querySelector('.map');
+var pinsContainer = document.querySelector('.map__pins');
+var filtersContainer = document.querySelector('.map__filters-container');
+var mainPin = document.querySelector('.map__pin--main');
+
+var form = document.querySelector('.ad-form');
+var formFieldsets = form.querySelectorAll('.ad-form__element');
+var formAddress = form.querySelector('#address');
+
+// Шаблоны
+// ----------
+var template = document.querySelector('template');
+var pinTemplate = template.content.querySelector('.map__pin');
+var cardTemplate = template.content.querySelector('.map__card');
+
 // Данные
+// ----------
+var isPageActive = false;
+var xRange = [PIN_SIZES.width / 2, map.offsetWidth - PIN_SIZES.width / 2];
 var locale = LOCALE_RUS;
 var advertsData = {
   titles: TITLES,
@@ -185,25 +355,13 @@ var advertsData = {
   features: FEATURES,
   photos: PHOTOS,
   avatarPath: AVATAR_PATH,
-  dimensions: [WIDTH, HEIGHT],
+  dimensions: [PIN_SIZES.width, PIN_SIZES.height],
   xRange: xRange,
   yRange: Y_RANGE,
 };
 
-
-// DOM-элементы
-var pinsContainer = document.querySelector('.map__pins');
-var filtersContainer = document.querySelector('.map__filters-container');
-var template = document.querySelector('template');
-var pinTemplate = template.content.querySelector('.map__pin');
-var cardTemplate = template.content.querySelector('.map__card');
-
-// ---
 // Старт программы
-// ---
-var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
-
-pinsContainer.appendChild(renderFragment(adverts, renderPin, pinTemplate));
-map.insertBefore(renderCard(adverts[0], cardTemplate, locale), filtersContainer);
-
-map.classList.remove('map--faded');
+// ----------
+deactivatePage();
+setAddressByPin(false);
+mainPin.addEventListener('mouseup', onMainPinMouseUp);

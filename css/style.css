@@ -1216,3 +1216,21 @@ fieldset {
       -ms-transform: translateX(-50%);
           transform: translateX(-50%);
 }
+
+/* temp
+.map__pins::after {
+content: '';
+position: absolute;
+z-index: 1000;
+top: 462px;
+left: 603px;
+transform: translate(-50%, -50%);
+
+width: 5px;
+height: 5px;
+
+border-radius: 50%;
+background-color: blue;
+border: 1px solid white;
+}
+*/
