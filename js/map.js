@@ -46,6 +46,16 @@ var shuffleArray = function (srcArray) {
   return destArray;
 };
 
+var toArray = function (collection) {
+  var array = [];
+
+  for (var i = 0; i < collection.length; i++) {
+    array.push(collection[i]);
+  }
+
+  return array;
+};
+
 var removeChildren = function (elem) {
   while (elem.lastChild) {
     elem.removeChild(elem.lastChild);
@@ -206,21 +216,57 @@ var onMainPinMouseUp = function () {
   activatePage();
 };
 
+var showCard = function (pins, adverts, evt) {
+  var target = evt.currentTarget;
+  var index = pins.indexOf(target);
+  var advert = adverts[index];
+
+  var oldCard = map.querySelector('.map__card');
+  if (oldCard) {
+    oldCard.remove();
+  }
+
+  var newCard = renderCard(advert, cardTemplate, locale);
+  map.insertBefore(newCard, filtersContainer);
+
+  var cardClose = newCard.querySelector('.popup__close');
+  cardClose.addEventListener('click', closeCard);
+};
+
+var closeCard = function (evt) {
+  var card = map.querySelector('.map__card');
+
+  if (evt) {
+    evt.preventDefault();
+  }
+
+  if (card) {
+    card.remove();
+  }
+};
+
 var activatePage = function () {
   var oldPins = pinsContainer.querySelectorAll('.map__pin:not(.map__pin--main)');
-  var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
-  var pins = renderFragment(adverts, renderPin, pinTemplate);
-
   removeElements(oldPins);
-  pinsContainer.appendChild(pins);
-  // map.insertBefore(renderCard(adverts[0], cardTemplate, locale), filtersContainer);
+  closeCard();
+
+  var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
+  var pinsFragment = renderFragment(adverts, renderPin, pinTemplate);
+  pinsContainer.appendChild(pinsFragment);
+
+  var newPins = toArray(pinsContainer.querySelectorAll('.map__pin:not(.map__pin--main)'));
+  for (var i = 0; i < newPins.length; i++) {
+    newPins[i].addEventListener('click', function (evt) {
+      showCard(newPins, adverts, evt);
+    });
+  }
+
+  for (var j = 0; j < advertFormElements.length; j++) {
+    advertFormElements[j].disabled = false;
+  }
 
   map.classList.remove('map--faded');
   advertForm.classList.remove('ad-form--disabled');
-
-  for (var i = 0; i < advertFormElements.length; i++) {
-    advertFormElements[i].disabled = false;
-  }
 };
 
 var deactivatePage = function () {
