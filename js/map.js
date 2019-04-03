@@ -2,6 +2,9 @@
 
 // Константы
 // ----------
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
+
 var ADVERTS_AMOUNT = 8;
 var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
@@ -216,6 +219,23 @@ var onMainPinMouseUp = function () {
   activatePage();
 };
 
+var onEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeCard();
+  }
+};
+
+var onEnterPress = function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    var target = evt.target;
+    var cardClose = document.querySelector('.map__card .popup-close');
+
+    if (target === cardClose) {
+      closeCard();
+    }
+  }
+};
+
 var showCard = function (pins, adverts, evt) {
   var target = evt.currentTarget;
   var index = pins.indexOf(target);
@@ -231,6 +251,7 @@ var showCard = function (pins, adverts, evt) {
 
   var cardClose = newCard.querySelector('.popup__close');
   cardClose.addEventListener('click', closeCard);
+  document.addEventListener('keydown', onEscPress);
 };
 
 var closeCard = function (evt) {
@@ -242,7 +263,10 @@ var closeCard = function (evt) {
 
   if (card) {
     card.remove();
+    document.removeEventListener('keydown', onEscPress);
+    document.removeEventListener('keydown', onEnterPress);
   }
+
 };
 
 var activatePage = function () {
@@ -265,6 +289,8 @@ var activatePage = function () {
     advertFormElements[j].disabled = false;
   }
 
+  document.addEventListener('keydown', onEnterPress);
+
   map.classList.remove('map--faded');
   advertForm.classList.remove('ad-form--disabled');
 };
@@ -276,6 +302,8 @@ var deactivatePage = function () {
   for (var i = 0; i < advertFormElements.length; i++) {
     advertFormElements[i].disabled = true;
   }
+
+  document.removeEventListener('keydown', onEnterPress);
 };
 
 // Данные
