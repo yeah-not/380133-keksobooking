@@ -278,6 +278,7 @@ var disableForm = function () {
 };
 
 var enableForm = function () {
+  form.addEventListener('submit', onFormSubmit);
   form.classList.remove('ad-form--disabled');
   removeBoolAttributes(formFieldsets, 'disabled');
 };
@@ -326,6 +327,11 @@ var onEscPressForCard = function (evt) {
   }
 };
 
+var onFormSubmit = function (evt) {
+  evt.preventDefault();
+  console.log('Submit');
+};
+
 // DOM-элементы
 // ----------
 var map = document.querySelector('.map');
@@ -365,3 +371,6 @@ var advertsData = {
 deactivatePage();
 setAddressByPin(false);
 mainPin.addEventListener('mouseup', onMainPinMouseUp);
+
+// TEMP:
+activatePage();
