@@ -278,7 +278,11 @@ var disableForm = function () {
 };
 
 var enableForm = function () {
+  formTitle.addEventListener('invalid', onFormTitleInvalid);
+  formPrice.addEventListener('invalid', onFormPriceInvalid);
+
   form.addEventListener('submit', onFormSubmit);
+
   form.classList.remove('ad-form--disabled');
   removeBoolAttributes(formFieldsets, 'disabled');
 };
@@ -332,6 +336,14 @@ var onFormSubmit = function (evt) {
   console.log('Submit');
 };
 
+var onFormTitleInvalid = function (evt) {
+  var target = evt.target;
+}
+
+var onFormPriceInvalid = function (evt) {
+  var target = evt.target;
+}
+
 // DOM-элементы
 // ----------
 var map = document.querySelector('.map');
@@ -342,6 +354,17 @@ var mainPin = document.querySelector('.map__pin--main');
 var form = document.querySelector('.ad-form');
 var formFieldsets = form.querySelectorAll('.ad-form__element');
 var formAddress = form.querySelector('#address');
+var formTitle = form.querySelector('#title');
+var formType = form.querySelector('#type');
+var formPrice = form.querySelector('#price');
+var formTimein = form.querySelector('#timein');
+var formTimeout = form.querySelector('#timeout');
+var formRooms = form.querySelector('#room_number');
+var formCapacity = form.querySelector('#capacity');
+
+// TEMP:
+formTitle.required = false;
+formPrice.required = false;
 
 // Шаблоны
 // ----------
