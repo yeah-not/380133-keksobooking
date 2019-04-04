@@ -649,6 +649,13 @@ fieldset {
   margin-right: 14px;
 }
 
+.ad-form--validate .ad-form__element input:invalid,
+.ad-form--validate .ad-form__element select:invalid,
+.ad-form--validate .ad-form__element textarea:invalid {
+  border-color: red;
+}
+
+
 .features legend {
   padding-bottom: 5px;
 }

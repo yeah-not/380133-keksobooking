@@ -282,6 +282,8 @@ var enableForm = function () {
   formPrice.addEventListener('invalid', onFormPriceInvalid);
 
   form.addEventListener('submit', onFormSubmit);
+  form.addEventListener('reset', onFormReset);
+  formSubmit.addEventListener('click', onFormSubmitClick);
 
   form.classList.remove('ad-form--disabled');
   removeBoolAttributes(formFieldsets, 'disabled');
@@ -333,16 +335,25 @@ var onEscPressForCard = function (evt) {
 
 var onFormSubmit = function (evt) {
   evt.preventDefault();
+
   console.log('Submit');
+};
+
+var onFormSubmitClick = function () {
+  form.classList.add('ad-form--validate');
+};
+
+var onFormReset = function () {
+  form.classList.remove('ad-form--validate');
 };
 
 var onFormTitleInvalid = function (evt) {
   var target = evt.target;
-}
+};
 
 var onFormPriceInvalid = function (evt) {
   var target = evt.target;
-}
+};
 
 // DOM-элементы
 // ----------
@@ -352,6 +363,7 @@ var filtersContainer = document.querySelector('.map__filters-container');
 var mainPin = document.querySelector('.map__pin--main');
 
 var form = document.querySelector('.ad-form');
+var formSubmit = form.querySelector('.ad-form__submit');
 var formFieldsets = form.querySelectorAll('.ad-form__element');
 var formAddress = form.querySelector('#address');
 var formTitle = form.querySelector('#title');
@@ -363,8 +375,8 @@ var formRooms = form.querySelector('#room_number');
 var formCapacity = form.querySelector('#capacity');
 
 // TEMP:
-formTitle.required = false;
-formPrice.required = false;
+// formTitle.required = false;
+// formPrice.required = false;
 
 // Шаблоны
 // ----------
