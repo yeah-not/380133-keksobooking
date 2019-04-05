@@ -128,7 +128,7 @@
 
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="price">Цена за ночь, руб.</label>
-          <input id="price" name="price" type="number" minlength="5000" maxlength="1000000" placeholder="5000" required>
+          <input id="price" name="price" type="number" min="5000" max="1000000" placeholder="5000" required>
         </fieldset>
 
         <fieldset class="ad-form__element ad-form__element--time">
@@ -160,7 +160,7 @@
           <select id="capacity" name="capacity">
             <option value="3" disabled>для 3 гостей</option>
             <option value="2" disabled>для 2 гостей</option>
-            <option value="1">для 1 гостя</option>
+            <option value="1" selected>для 1 гостя</option>
             <option value="0" disabled>не для гостей</option>
           </select>
         </fieldset>

@@ -15,18 +15,24 @@ var AVATAR_PATH = 'img/avatars/user';
 var Y_RANGE = [130, 630];
 var PIN_SIZES = {
   width: 50,
-  height: 70
+  height: 70,
 };
 var MAIN_PIN_SIZES = {
   width: 65,
   height: 65,
-  pointerHeight: 22
+  pointerHeight: 22,
+};
+var TYPES_WITH_PRICE = {
+  'bungalo': 0,
+  'flat': 1000,
+  'house': 5000,
+  'palace': 10000,
 };
 var LOCALE_RUS = {
   'palace': 'дворец',
-  'flat': 'квартира',
   'house': 'дом',
-  'bungalo': 'бунгало'
+  'flat': 'квартира',
+  'bungalo': 'бунгало',
 };
 
 // Утилиты
@@ -275,6 +281,14 @@ var activateMap = function () {
 var disableForm = function () {
   form.classList.add('ad-form--disabled');
   setBoolAttributes(formFieldsets, 'disabled');
+
+  form.removeEventListener('submit', onFormSubmit);
+  form.removeEventListener('reset', onFormReset);
+  formSubmit.removeEventListener('click', onFormSubmitClick);
+  formType.removeEventListener('change', onFormTypeChange);
+  formTimeIn.removeEventListener('change', onFormTimeInOutChange);
+  formTimeOut.removeEventListener('change', onFormTimeInOutChange);
+  formRooms.removeEventListener('change', onFormRoomsChange);
 };
 
 var enableForm = function () {
@@ -284,6 +298,10 @@ var enableForm = function () {
   form.addEventListener('submit', onFormSubmit);
   form.addEventListener('reset', onFormReset);
   formSubmit.addEventListener('click', onFormSubmitClick);
+  formType.addEventListener('change', onFormTypeChange);
+  formTimeIn.addEventListener('change', onFormTimeInOutChange);
+  formTimeOut.addEventListener('change', onFormTimeInOutChange);
+  formRooms.addEventListener('change', onFormRoomsChange);
 
   form.classList.remove('ad-form--disabled');
   removeBoolAttributes(formFieldsets, 'disabled');
@@ -334,9 +352,8 @@ var onEscPressForCard = function (evt) {
 };
 
 var onFormSubmit = function (evt) {
+  console.log('TEMP 2');
   evt.preventDefault();
-
-  console.log('Submit');
 };
 
 var onFormSubmitClick = function () {
@@ -355,6 +372,58 @@ var onFormPriceInvalid = function (evt) {
   var target = evt.target;
 };
 
+var onFormTypeChange = function (evt) {
+  var target = evt.target;
+  var minPrice = TYPES_WITH_PRICE[target.value];
+
+  formPrice.min = minPrice;
+  formPrice.placeholder = minPrice;
+};
+
+var onFormTimeInOutChange = function (evt) {
+  var target = evt.target;
+  var destElement = formTimeOut;
+
+  if (target === formTimeOut) {
+    destElement = formTimeIn;
+  }
+
+  destElement.value = target.value;
+};
+
+var onFormRoomsChange = function (evt) {
+  var target = evt.target;
+  var roomsNum = target.value;
+  var guestsNum = [];
+
+  switch (roomsNum) {
+    case '1':
+      guestsNum = ['1'];
+      break;
+    case '2':
+      guestsNum = ['1', '2'];
+      break;
+    case '3':
+      guestsNum = ['1', '2', '3'];
+      break;
+    default:
+      guestsNum = ['0'];
+  }
+
+  var guestsOptions = formCapacity.querySelectorAll('option');
+
+  for (var i = 0; i < guestsOptions.length; i++) {
+    var option = guestsOptions[i];
+
+    if (guestsNum.indexOf(option.value) >= 0) {
+      option.disabled = false;
+      option.selected = true;
+    } else {
+      option.disabled = true;
+    }
+  }
+};
+
 // DOM-элементы
 // ----------
 var map = document.querySelector('.map');
@@ -369,14 +438,16 @@ var formAddress = form.querySelector('#address');
 var formTitle = form.querySelector('#title');
 var formType = form.querySelector('#type');
 var formPrice = form.querySelector('#price');
-var formTimein = form.querySelector('#timein');
-var formTimeout = form.querySelector('#timeout');
+var formTimeIn = form.querySelector('#timein');
+var formTimeOut = form.querySelector('#timeout');
 var formRooms = form.querySelector('#room_number');
 var formCapacity = form.querySelector('#capacity');
 
 // TEMP:
-// formTitle.required = false;
-// formPrice.required = false;
+console.log('TEMP 1');
+formTitle.required = false;
+formPrice.required = false;
+
 
 // Шаблоны
 // ----------
@@ -408,4 +479,5 @@ setAddressByPin(false);
 mainPin.addEventListener('mouseup', onMainPinMouseUp);
 
 // TEMP:
+console.log('TEMP 0');
 activatePage();
