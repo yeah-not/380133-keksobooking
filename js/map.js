@@ -312,7 +312,22 @@ var onMainPinMouseUp = function () {
 
 var onPinClick = function (evt, advert) {
   evt.preventDefault();
-  insertCard(advert);
+  var pin = evt.currentTarget;
+  var pins = pin.parentElement.querySelectorAll('.map__pin:not(.map__pin--main)');
+  var activeClass = 'map__pin--active';
+
+  if (!pin.classList.contains(activeClass)) {
+    insertCard(advert);
+
+    for (var i = 0; i < pins.length; i++) {
+      pins[i].classList.remove(activeClass);
+    }
+
+    pin.classList.add(activeClass);
+  } else {
+    removeCard();
+    pin.classList.remove(activeClass);
+  }
 };
 
 var onCardCloseClick = function (evt) {
