@@ -22,11 +22,17 @@ var MAIN_PIN_SIZES = {
   height: 65,
   pointerHeight: 22,
 };
-var TYPES_WITH_PRICE = {
+var MIN_PRICE_BY_TYPE = {
   'bungalo': 0,
   'flat': 1000,
   'house': 5000,
   'palace': 10000,
+};
+var GUESTS_BY_ROOMS = {
+  '1': ['1'],
+  '2': ['1', '2'],
+  '3': ['1', '2', '3'],
+  '100': ['0'],
 };
 var LOCALE_RUS = {
   'palace': 'дворец',
@@ -94,6 +100,77 @@ var renderFragment = function (data, callback, template) {
   }
 
   return fragment;
+};
+
+// Форма
+var initForm = function (form) {
+  var elements = form.elements;
+
+  for (var i = 0; i < elements.length; i++) {
+    var element = elements[i];
+    var value = element.value;
+    var placeholder = element.placeholder;
+
+    if (value) {
+      element.dataset.initValue = value;
+    }
+
+    if (placeholder) {
+      element.dataset.initPlaceholder = placeholder;
+    }
+  }
+};
+
+var clearForm = function (form) {
+  var elements = form.elements;
+
+  for (var i = 0; i < elements.length; i++) {
+    var element = elements[i];
+    var initValue = element.dataset.initValue;
+    var initPlaceholder = element.dataset.initPlaceholder;
+
+    if ('value' in element) {
+      if (initValue) {
+        element.value = initValue;
+      } else {
+        element.value = '';
+      }
+    }
+
+    if ('placeholder' in element) {
+      if (initPlaceholder) {
+        element.placeholder = initPlaceholder;
+      } else {
+        element.placeholder = '';
+      }
+    }
+  }
+};
+
+var setFormElementLimitByAnother = function (srcElement, destElement, type, rules) {
+  var value = rules[srcElement.value];
+  destElement.min = value;
+  destElement.placeholder = value;
+};
+
+var syncSelects = function (srcSelect, destSelect) {
+  destSelect.selectedIndex = srcSelect.selectedIndex;
+};
+
+var setSelectLimitsByAnother = function (srcSelect, destSelect, rules) {
+  var destVariants = rules[srcSelect.value];
+  var destOptions = destSelect.querySelectorAll('option');
+
+  for (var i = 0; i < destOptions.length; i++) {
+    var option = destOptions[i];
+
+    if (destVariants.indexOf(option.value) >= 0) {
+      option.disabled = false;
+      option.selected = true;
+    } else {
+      option.disabled = true;
+    }
+  }
 };
 
 // Функции
@@ -313,8 +390,8 @@ var disableForm = function () {
   form.removeEventListener('reset', onFormReset);
   formSubmit.removeEventListener('click', onFormSubmitClick);
   formType.removeEventListener('change', onFormTypeChange);
-  formTimeIn.removeEventListener('change', onFormTimeInOutChange);
-  formTimeOut.removeEventListener('change', onFormTimeInOutChange);
+  formTimeIn.removeEventListener('change', onFormTimeInChange);
+  formTimeOut.removeEventListener('change', onFormTimeOutChange);
   formRooms.removeEventListener('change', onFormRoomsChange);
 };
 
@@ -324,56 +401,44 @@ var enableForm = function () {
   form.addEventListener('reset', onFormReset);
   formSubmit.addEventListener('click', onFormSubmitClick);
   formType.addEventListener('change', onFormTypeChange);
-  formTimeIn.addEventListener('change', onFormTimeInOutChange);
-  formTimeOut.addEventListener('change', onFormTimeInOutChange);
+  formTimeIn.addEventListener('change', onFormTimeInChange);
+  formTimeOut.addEventListener('change', onFormTimeOutChange);
   formRooms.addEventListener('change', onFormRoomsChange);
 
   form.classList.remove('ad-form--disabled');
   removeBoolAttributes(formFieldsets, 'disabled');
 };
 
-var initForm = function (form) {
-  var elements = form.elements;
-
-  for (var i = 0; i < elements.length; i++) {
-    var element = elements[i];
-    var value = element.value;
-    var placeholder = element.placeholder;
-
-    if (value) {
-      element.dataset.initValue = value;
-    }
-
-    if (placeholder) {
-      element.dataset.initPlaceholder = placeholder;
-    }
-  }
+var showFormErrors = function () {
+  form.classList.add('ad-form--validate');
 };
 
-var clearForm = function (form) {
-  var elements = form.elements;
+var hideFormErrors = function () {
+  form.classList.remove('ad-form--validate');
+};
 
-  for (var i = 0; i < elements.length; i++) {
-    var element = elements[i];
-    var initValue = element.dataset.initValue;
-    var initPlaceholder = element.dataset.initPlaceholder;
+var showSuccessMsg = function () {
+  success.classList.remove('hidden');
+  document.addEventListener('click', onClickForSuccess);
+  document.addEventListener('keydown', onEscPressForSuccess);
+};
 
-    if ('value' in element) {
-      if (initValue) {
-        element.value = initValue;
-      } else {
-        element.value = '';
-      }
-    }
+var hideSuccessMsg = function () {
+  success.classList.add('hidden');
+  document.removeEventListener('click', onClickForSuccess);
+  document.removeEventListener('keydown', onEscPressForSuccess);
+};
 
-    if ('placeholder' in element) {
-      if (initPlaceholder) {
-        element.placeholder = initPlaceholder;
-      } else {
-        element.placeholder = '';
-      }
-    }
-  }
+var resetForm = function () {
+  hideFormErrors();
+  clearForm(form);
+  refreshMap(true);
+  deactivatePage();
+};
+
+var submitForm = function () {
+  form.reset();
+  showSuccessMsg();
 };
 
 var setAddressByPin = function (isPinActive) {
@@ -390,18 +455,6 @@ var setAddressByPin = function (isPinActive) {
   };
 
   formAddress.value = location.x + ', ' + location.y;
-};
-
-var showSuccess = function () {
-  success.classList.remove('hidden');
-  document.addEventListener('click', onClickForSuccess);
-  document.addEventListener('keydown', onEscPressForSuccess);
-};
-
-var hideSuccess = function () {
-  success.classList.add('hidden');
-  document.removeEventListener('click', onClickForSuccess);
-  document.removeEventListener('keydown', onEscPressForSuccess);
 };
 
 
@@ -434,83 +487,43 @@ var onEscPressForCard = function (evt) {
 };
 
 var onClickForSuccess = function () {
-  hideSuccess();
+  hideSuccessMsg();
 };
 
 var onEscPressForSuccess = function (evt) {
   if (evt.keyCode === ESC_KEYCODE) {
-    hideSuccess();
+    hideSuccessMsg();
   }
 };
 
 var onFormSubmit = function (evt) {
   evt.preventDefault();
-  form.reset();
-  showSuccess();
+  submitForm();
 };
 
 var onFormSubmitClick = function () {
-  form.classList.add('ad-form--validate');
+  showFormErrors();
 };
 
 var onFormReset = function (evt) {
   evt.preventDefault();
-  form.classList.remove('ad-form--validate');
-  clearForm(form);
-  refreshMap(true);
-  deactivatePage();
+  resetForm();
 };
 
-var onFormTypeChange = function (evt) {
-  var target = evt.target;
-  var minPrice = TYPES_WITH_PRICE[target.value];
-
-  formPrice.min = minPrice;
-  formPrice.placeholder = minPrice;
+var onFormTypeChange = function () {
+  setFormElementLimitByAnother(formType, formPrice, 'min', MIN_PRICE_BY_TYPE);
 };
 
-var onFormTimeInOutChange = function (evt) {
-  var target = evt.target;
-  var destElement = formTimeOut;
-
-  if (target === formTimeOut) {
-    destElement = formTimeIn;
-  }
-
-  destElement.value = target.value;
+var onFormTimeInChange = function () {
+  syncSelects(formTimeIn, formTimeOut);
 };
 
-var onFormRoomsChange = function (evt) {
-  var target = evt.target;
-  var roomsNum = target.value;
-  var guestsNum = [];
+var onFormTimeOutChange = function () {
+  syncSelects(formTimeOut, formTimeIn);
+};
 
-  switch (roomsNum) {
-    case '1':
-      guestsNum = ['1'];
-      break;
-    case '2':
-      guestsNum = ['1', '2'];
-      break;
-    case '3':
-      guestsNum = ['1', '2', '3'];
-      break;
-    default:
-      guestsNum = ['0'];
-  }
-
-  var guestsOptions = formCapacity.querySelectorAll('option');
-
-  for (var i = 0; i < guestsOptions.length; i++) {
-    var option = guestsOptions[i];
-
-    if (guestsNum.indexOf(option.value) >= 0) {
-      option.disabled = false;
-      option.selected = true;
-    } else {
-      option.disabled = true;
-    }
-  }
+var onFormRoomsChange = function () {
+  setSelectLimitsByAnother(formRooms, formCapacity, GUESTS_BY_ROOMS);
 };
 
 // DOM-элементы
