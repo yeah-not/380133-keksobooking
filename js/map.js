@@ -484,23 +484,28 @@ var onMainPinMouseUp = function () {
   }
 };
 
+var activatePin = function (pin) {
+  pin.classList.add('map__pin--active');
+};
+
+var deactivatePin = function (pin) {
+  if (pin) {
+    pin.classList.remove('map__pin--active');
+  }
+};
+
 var onPinClick = function (evt, advert) {
   evt.preventDefault();
   var pin = evt.currentTarget;
-  var pins = pin.parentElement.querySelectorAll('.map__pin:not(.map__pin--main)');
-  var activeClass = 'map__pin--active';
 
-  if (!pin.classList.contains(activeClass)) {
+  if (!pin.classList.contains('map__pin--active')) {
+    var oldPin = map.querySelector('.map__pin--active');
+    deactivatePin(oldPin);
     insertCard(advert);
-
-    for (var i = 0; i < pins.length; i++) {
-      pins[i].classList.remove(activeClass);
-    }
-
-    pin.classList.add(activeClass);
+    activatePin(pin);
   } else {
     removeCard();
-    pin.classList.remove(activeClass);
+    deactivatePin(pin);
   }
 };
 
@@ -511,7 +516,9 @@ var onCardCloseClick = function (evt) {
 
 var onEscPressForCard = function (evt) {
   if (evt.keyCode === ESC_KEYCODE) {
+    var pin = map.querySelector('.map__pin--active');
     removeCard();
+    deactivatePin(pin);
   }
 };
 
