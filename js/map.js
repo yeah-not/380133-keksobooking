@@ -110,6 +110,7 @@ var initForm = function (form) {
     var element = elements[i];
     var value = element.value;
     var placeholder = element.placeholder;
+    var checked = element.checked;
 
     if (value) {
       element.dataset.initValue = value;
@@ -117,6 +118,10 @@ var initForm = function (form) {
 
     if (placeholder) {
       element.dataset.initPlaceholder = placeholder;
+    }
+
+    if (checked) {
+      element.dataset.initChecked = checked;
     }
   }
 };
@@ -128,6 +133,7 @@ var clearForm = function (form) {
     var element = elements[i];
     var initValue = element.dataset.initValue;
     var initPlaceholder = element.dataset.initPlaceholder;
+    var initChecked = element.dataset.initChecked;
 
     if ('value' in element) {
       if (initValue) {
@@ -142,6 +148,14 @@ var clearForm = function (form) {
         element.placeholder = initPlaceholder;
       } else {
         element.placeholder = '';
+      }
+    }
+
+    if ('checked' in element) {
+      if (initChecked) {
+        element.checked = initChecked;
+      } else {
+        element.checked = false;
       }
     }
   }
@@ -339,18 +353,18 @@ var removeCard = function () {
 var initPage = function () {
   savePinDefaultPosition(mainPin);
   setAddressByPin(false);
-  initForm(form);
+  initForm(adForm);
 };
 
 var deactivatePage = function () {
   deactivateMap();
-  disableForm();
+  disableAdForm();
 };
 
 var activatePage = function () {
   refreshMap(false);
   activateMap();
-  enableForm();
+  enableAdForm();
 };
 
 // Карта
@@ -382,39 +396,39 @@ var activateMap = function () {
 };
 
 // Форма
-var disableForm = function () {
-  form.classList.add('ad-form--disabled');
-  setBoolAttributes(formFieldsets, 'disabled');
+var disableAdForm = function () {
+  adForm.classList.add('ad-form--disabled');
+  setBoolAttributes(adFormFieldsets, 'disabled');
 
-  form.removeEventListener('submit', onFormSubmit);
-  form.removeEventListener('reset', onFormReset);
-  formSubmit.removeEventListener('click', onFormSubmitClick);
-  formType.removeEventListener('change', onFormTypeChange);
-  formTimeIn.removeEventListener('change', onFormTimeInChange);
-  formTimeOut.removeEventListener('change', onFormTimeOutChange);
-  formRooms.removeEventListener('change', onFormRoomsChange);
+  adForm.removeEventListener('submit', onAdFormSubmit);
+  adForm.removeEventListener('reset', onAdFormReset);
+  adFormSubmit.removeEventListener('click', onAdFormSubmitClick);
+  adFormType.removeEventListener('change', onAdFormTypeChange);
+  adFormTimeIn.removeEventListener('change', onAdFormTimeInChange);
+  adFormTimeOut.removeEventListener('change', onAdFormTimeOutChange);
+  adFormRooms.removeEventListener('change', onAdFormRoomsChange);
 };
 
-var enableForm = function () {
+var enableAdForm = function () {
 
-  form.addEventListener('submit', onFormSubmit);
-  form.addEventListener('reset', onFormReset);
-  formSubmit.addEventListener('click', onFormSubmitClick);
-  formType.addEventListener('change', onFormTypeChange);
-  formTimeIn.addEventListener('change', onFormTimeInChange);
-  formTimeOut.addEventListener('change', onFormTimeOutChange);
-  formRooms.addEventListener('change', onFormRoomsChange);
+  adForm.addEventListener('submit', onAdFormSubmit);
+  adForm.addEventListener('reset', onAdFormReset);
+  adFormSubmit.addEventListener('click', onAdFormSubmitClick);
+  adFormType.addEventListener('change', onAdFormTypeChange);
+  adFormTimeIn.addEventListener('change', onAdFormTimeInChange);
+  adFormTimeOut.addEventListener('change', onAdFormTimeOutChange);
+  adFormRooms.addEventListener('change', onAdFormRoomsChange);
 
-  form.classList.remove('ad-form--disabled');
-  removeBoolAttributes(formFieldsets, 'disabled');
+  adForm.classList.remove('ad-form--disabled');
+  removeBoolAttributes(adFormFieldsets, 'disabled');
 };
 
-var showFormErrors = function () {
-  form.classList.add('ad-form--validate');
+var showAdFormErrors = function () {
+  adForm.classList.add('ad-form--validate');
 };
 
-var hideFormErrors = function () {
-  form.classList.remove('ad-form--validate');
+var hideAdFormErrors = function () {
+  adForm.classList.remove('ad-form--validate');
 };
 
 var showSuccessMsg = function () {
@@ -429,15 +443,15 @@ var hideSuccessMsg = function () {
   document.removeEventListener('keydown', onEscPressForSuccess);
 };
 
-var resetForm = function () {
-  hideFormErrors();
-  clearForm(form);
+var resetAdForm = function () {
+  hideAdFormErrors();
+  clearForm(adForm);
   refreshMap(true);
   deactivatePage();
 };
 
-var submitForm = function () {
-  form.reset();
+var submitAdForm = function () {
+  adForm.reset();
   showSuccessMsg();
 };
 
@@ -454,7 +468,7 @@ var setAddressByPin = function (isPinActive) {
     y: mainPin.offsetTop + marginTop
   };
 
-  formAddress.value = location.x + ', ' + location.y;
+  adFormAddress.value = location.x + ', ' + location.y;
 };
 
 
@@ -496,34 +510,34 @@ var onEscPressForSuccess = function (evt) {
   }
 };
 
-var onFormSubmit = function (evt) {
+var onAdFormSubmit = function (evt) {
   evt.preventDefault();
-  submitForm();
+  submitAdForm();
 };
 
-var onFormSubmitClick = function () {
-  showFormErrors();
+var onAdFormSubmitClick = function () {
+  showAdFormErrors();
 };
 
-var onFormReset = function (evt) {
+var onAdFormReset = function (evt) {
   evt.preventDefault();
-  resetForm();
+  resetAdForm();
 };
 
-var onFormTypeChange = function () {
-  setFormElementLimitByAnother(formType, formPrice, 'min', MIN_PRICE_BY_TYPE);
+var onAdFormTypeChange = function () {
+  setFormElementLimitByAnother(adFormType, adFormPrice, 'min', MIN_PRICE_BY_TYPE);
 };
 
-var onFormTimeInChange = function () {
-  syncSelects(formTimeIn, formTimeOut);
+var onAdFormTimeInChange = function () {
+  syncSelects(adFormTimeIn, adFormTimeOut);
 };
 
-var onFormTimeOutChange = function () {
-  syncSelects(formTimeOut, formTimeIn);
+var onAdFormTimeOutChange = function () {
+  syncSelects(adFormTimeOut, adFormTimeIn);
 };
 
-var onFormRoomsChange = function () {
-  setSelectLimitsByAnother(formRooms, formCapacity, GUESTS_BY_ROOMS);
+var onAdFormRoomsChange = function () {
+  setSelectLimitsByAnother(adFormRooms, adFormCapacity, GUESTS_BY_ROOMS);
 };
 
 // DOM-элементы
@@ -534,16 +548,16 @@ var filtersContainer = document.querySelector('.map__filters-container');
 var mainPin = document.querySelector('.map__pin--main');
 var success = document.querySelector('.success');
 
-var form = document.querySelector('.ad-form');
-var formSubmit = form.querySelector('.ad-form__submit');
-var formFieldsets = form.querySelectorAll('.ad-form__element');
-var formAddress = form.querySelector('#address');
-var formType = form.querySelector('#type');
-var formPrice = form.querySelector('#price');
-var formTimeIn = form.querySelector('#timein');
-var formTimeOut = form.querySelector('#timeout');
-var formRooms = form.querySelector('#room_number');
-var formCapacity = form.querySelector('#capacity');
+var adForm = document.querySelector('.ad-form');
+var adFormSubmit = adForm.querySelector('.ad-form__submit');
+var adFormFieldsets = adForm.querySelectorAll('.ad-form__element');
+var adFormAddress = adForm.querySelector('#address');
+var adFormType = adForm.querySelector('#type');
+var adFormPrice = adForm.querySelector('#price');
+var adFormTimeIn = adForm.querySelector('#timein');
+var adFormTimeOut = adForm.querySelector('#timeout');
+var adFormRooms = adForm.querySelector('#room_number');
+var adFormCapacity = adForm.querySelector('#capacity');
 
 // Шаблоны
 // ----------
