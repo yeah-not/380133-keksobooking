@@ -15,18 +15,30 @@ var AVATAR_PATH = 'img/avatars/user';
 var Y_RANGE = [130, 630];
 var PIN_SIZES = {
   width: 50,
-  height: 70
+  height: 70,
 };
 var MAIN_PIN_SIZES = {
   width: 65,
   height: 65,
-  pointerHeight: 22
+  pointerHeight: 22,
+};
+var MIN_PRICE_BY_TYPE = {
+  'bungalo': 0,
+  'flat': 1000,
+  'house': 5000,
+  'palace': 10000,
+};
+var GUESTS_BY_ROOMS = {
+  '1': ['1'],
+  '2': ['1', '2'],
+  '3': ['1', '2', '3'],
+  '100': ['0'],
 };
 var LOCALE_RUS = {
   'palace': 'дворец',
-  'flat': 'квартира',
   'house': 'дом',
-  'bungalo': 'бунгало'
+  'flat': 'квартира',
+  'bungalo': 'бунгало',
 };
 
 // Утилиты
@@ -88,6 +100,91 @@ var renderFragment = function (data, callback, template) {
   }
 
   return fragment;
+};
+
+// Форма
+var initForm = function (form) {
+  var elements = form.elements;
+
+  for (var i = 0; i < elements.length; i++) {
+    var element = elements[i];
+    var value = element.value;
+    var placeholder = element.placeholder;
+    var checked = element.checked;
+
+    if (value) {
+      element.dataset.initValue = value;
+    }
+
+    if (placeholder) {
+      element.dataset.initPlaceholder = placeholder;
+    }
+
+    if (checked) {
+      element.dataset.initChecked = checked;
+    }
+  }
+};
+
+var clearForm = function (form) {
+  var elements = form.elements;
+
+  for (var i = 0; i < elements.length; i++) {
+    var element = elements[i];
+    var initValue = element.dataset.initValue;
+    var initPlaceholder = element.dataset.initPlaceholder;
+    var initChecked = element.dataset.initChecked;
+
+    if ('value' in element) {
+      if (initValue) {
+        element.value = initValue;
+      } else {
+        element.value = '';
+      }
+    }
+
+    if ('placeholder' in element) {
+      if (initPlaceholder) {
+        element.placeholder = initPlaceholder;
+      } else {
+        element.placeholder = '';
+      }
+    }
+
+    if ('checked' in element) {
+      if (initChecked) {
+        element.checked = initChecked;
+      } else {
+        element.checked = false;
+      }
+    }
+  }
+};
+
+var setFormElementLimitByAnother = function (srcElement, destElement, type, rules) {
+  var value = rules[srcElement.value];
+  destElement.min = value;
+  destElement.placeholder = value;
+};
+
+var syncSelects = function (srcSelect, destSelect) {
+  destSelect.selectedIndex = srcSelect.selectedIndex;
+};
+
+var setSelectLimitsByAnother = function (srcSelect, destSelect, rules) {
+  var destVariants = rules[srcSelect.value];
+  var destOptions = destSelect.querySelectorAll('option');
+
+  for (var i = 0; i < destOptions.length; i++) {
+    var option = destOptions[i];
+
+    if (destVariants.indexOf(option.value) >= 0) {
+      option.disabled = false;
+      option.selected = true;
+    } else {
+      option.disabled = true;
+    }
+  }
 };
 
 // Функции
@@ -180,6 +277,14 @@ var removePins = function () {
   removeElements(pins);
 };
 
+var savePinDefaultPosition = function (pin) {
+  var left = pin.offsetLeft;
+  var top = pin.offsetTop;
+
+  pin.dataset.defaultLeft = left + 'px';
+  pin.dataset.defaultTop = top + 'px';
+};
+
 // Карточка
 var renderCard = function (advert, template, locale) {
   var card = template.cloneNode(true);
@@ -245,22 +350,41 @@ var removeCard = function () {
 };
 
 // Страница
+var initPage = function () {
+  savePinDefaultPosition(mainPin);
+  setAddressByPin(false);
+  initForm(adForm);
+};
+
 var deactivatePage = function () {
   deactivateMap();
-  disableForm();
+  disableAdForm();
 };
 
 var activatePage = function () {
-  refreshMap();
+  refreshMap(false);
   activateMap();
-  enableForm();
+  enableAdForm();
 };
 
 // Карта
-var refreshMap = function () {
+var refreshMap = function (reset) {
   removePins();
   removeCard();
-  renderPins();
+
+  if (!reset) {
+    renderPins();
+  } else {
+    movePinToDefaultPosition(mainPin);
+  }
+};
+
+var movePinToDefaultPosition = function (pin) {
+  var left = pin.dataset.defaultLeft;
+  var top = pin.dataset.defaultTop;
+
+  pin.style.left = left;
+  pin.style.top = top;
 };
 
 var deactivateMap = function () {
@@ -272,14 +396,63 @@ var activateMap = function () {
 };
 
 // Форма
-var disableForm = function () {
-  form.classList.add('ad-form--disabled');
-  setBoolAttributes(formFieldsets, 'disabled');
+var disableAdForm = function () {
+  adForm.classList.add('ad-form--disabled');
+  setBoolAttributes(adFormFieldsets, 'disabled');
+
+  adForm.removeEventListener('submit', onAdFormSubmit);
+  adForm.removeEventListener('reset', onAdFormReset);
+  adFormSubmit.removeEventListener('click', onAdFormSubmitClick);
+  adFormType.removeEventListener('change', onAdFormTypeChange);
+  adFormTimeIn.removeEventListener('change', onAdFormTimeInChange);
+  adFormTimeOut.removeEventListener('change', onAdFormTimeOutChange);
+  adFormRooms.removeEventListener('change', onAdFormRoomsChange);
 };
 
-var enableForm = function () {
-  form.classList.remove('ad-form--disabled');
-  removeBoolAttributes(formFieldsets, 'disabled');
+var enableAdForm = function () {
+
+  adForm.addEventListener('submit', onAdFormSubmit);
+  adForm.addEventListener('reset', onAdFormReset);
+  adFormSubmit.addEventListener('click', onAdFormSubmitClick);
+  adFormType.addEventListener('change', onAdFormTypeChange);
+  adFormTimeIn.addEventListener('change', onAdFormTimeInChange);
+  adFormTimeOut.addEventListener('change', onAdFormTimeOutChange);
+  adFormRooms.addEventListener('change', onAdFormRoomsChange);
+
+  adForm.classList.remove('ad-form--disabled');
+  removeBoolAttributes(adFormFieldsets, 'disabled');
+};
+
+var showAdFormErrors = function () {
+  adForm.classList.add('ad-form--validate');
+};
+
+var hideAdFormErrors = function () {
+  adForm.classList.remove('ad-form--validate');
+};
+
+var showSuccessMsg = function () {
+  success.classList.remove('hidden');
+  document.addEventListener('click', onClickForSuccess);
+  document.addEventListener('keydown', onEscPressForSuccess);
+};
+
+var hideSuccessMsg = function () {
+  success.classList.add('hidden');
+  document.removeEventListener('click', onClickForSuccess);
+  document.removeEventListener('keydown', onEscPressForSuccess);
+};
+
+var resetAdForm = function () {
+  hideAdFormErrors();
+  clearForm(adForm);
+  refreshMap(true);
+  deactivatePage();
+};
+
+var submitAdForm = function () {
+  adForm.reset();
+  showSuccessMsg();
 };
 
 var setAddressByPin = function (isPinActive) {
@@ -295,8 +468,9 @@ var setAddressByPin = function (isPinActive) {
     y: mainPin.offsetTop + marginTop
   };
 
-  formAddress.value = location.x + ', ' + location.y;
+  adFormAddress.value = location.x + ', ' + location.y;
 };
+
 
 // Обработчики
 // ----------
@@ -304,7 +478,7 @@ var onMainPinMouseUp = function () {
   setAddressByPin(true);
 
   if (isPageActive) {
-    refreshMap();
+    refreshMap(false);
   } else {
     activatePage();
   }
@@ -341,16 +515,64 @@ var onEscPressForCard = function (evt) {
   }
 };
 
+var onClickForSuccess = function () {
+  hideSuccessMsg();
+};
+
+var onEscPressForSuccess = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    hideSuccessMsg();
+  }
+};
+
+var onAdFormSubmit = function (evt) {
+  evt.preventDefault();
+  submitAdForm();
+};
+
+var onAdFormSubmitClick = function () {
+  showAdFormErrors();
+};
+
+var onAdFormReset = function (evt) {
+  evt.preventDefault();
+  resetAdForm();
+};
+
+var onAdFormTypeChange = function () {
+  setFormElementLimitByAnother(adFormType, adFormPrice, 'min', MIN_PRICE_BY_TYPE);
+};
+
+var onAdFormTimeInChange = function () {
+  syncSelects(adFormTimeIn, adFormTimeOut);
+};
+
+var onAdFormTimeOutChange = function () {
+  syncSelects(adFormTimeOut, adFormTimeIn);
+};
+
+var onAdFormRoomsChange = function () {
+  setSelectLimitsByAnother(adFormRooms, adFormCapacity, GUESTS_BY_ROOMS);
+};
+
 // DOM-элементы
 // ----------
 var map = document.querySelector('.map');
 var pinsContainer = document.querySelector('.map__pins');
 var filtersContainer = document.querySelector('.map__filters-container');
 var mainPin = document.querySelector('.map__pin--main');
+var success = document.querySelector('.success');
 
-var form = document.querySelector('.ad-form');
-var formFieldsets = form.querySelectorAll('.ad-form__element');
-var formAddress = form.querySelector('#address');
+var adForm = document.querySelector('.ad-form');
+var adFormSubmit = adForm.querySelector('.ad-form__submit');
+var adFormFieldsets = adForm.querySelectorAll('.ad-form__element');
+var adFormAddress = adForm.querySelector('#address');
+var adFormType = adForm.querySelector('#type');
+var adFormPrice = adForm.querySelector('#price');
+var adFormTimeIn = adForm.querySelector('#timein');
+var adFormTimeOut = adForm.querySelector('#timeout');
+var adFormRooms = adForm.querySelector('#room_number');
+var adFormCapacity = adForm.querySelector('#capacity');
 
 // Шаблоны
 // ----------
@@ -378,5 +600,5 @@ var advertsData = {
 // Старт программы
 // ----------
 deactivatePage();
-setAddressByPin(false);
+initPage();
 mainPin.addEventListener('mouseup', onMainPinMouseUp);
