@@ -484,15 +484,7 @@ var setAddressByPin = function (isPinActive) {
 
 // Обработчики
 // ----------
-var onMainPinMouseUp = function () {
-  setAddressByPin(true);
 
-  if (isPageActive) {
-    refreshMap(false);
-  } else {
-    activatePage();
-  }
-};
 
 var onPinClick = function (evt, advert) {
   evt.preventDefault();
@@ -608,4 +600,3 @@ var advertsData = {
 // ----------
 deactivatePage();
 initPage();
-mainPin.addEventListener('mouseup', onMainPinMouseUp);
