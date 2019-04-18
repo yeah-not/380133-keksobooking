@@ -12,7 +12,10 @@ var CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var AVATAR_PATH = 'img/avatars/user';
-var Y_RANGE = [130, 630];
+var PIN_Y_RANGE = {
+  min: 100,
+  max: 630
+};
 var PIN_SIZES = {
   width: 50,
   height: 70,
@@ -210,8 +213,8 @@ var generateAdvert = function (index, data) {
       photos: shuffleArray(data.photos)
     },
     location: {
-      x: getRandomInt(data.xRange[0], data.xRange[1]),
-      y: getRandomInt(data.yRange[0], data.yRange[1])
+      x: getRandomInt(data.rangeX.min, data.rangeX.max),
+      y: getRandomInt(data.rangeY.min, data.rangeY.max)
     }
   };
 
@@ -582,7 +585,10 @@ var cardTemplate = template.content.querySelector('.map__card');
 // Данные
 // ----------
 var isPageActive = false;
-var xRange = [PIN_SIZES.width / 2, map.offsetWidth - PIN_SIZES.width / 2];
+var pinRangeX = {
+  min: PIN_SIZES.width / 2,
+  max: map.offsetWidth - PIN_SIZES.width / 2
+};
 var locale = LOCALE_RUS;
 var advertsData = {
   titles: TITLES,
@@ -592,8 +598,8 @@ var advertsData = {
   photos: PHOTOS,
   avatarPath: AVATAR_PATH,
   dimensions: [PIN_SIZES.width, PIN_SIZES.height],
-  xRange: xRange,
-  yRange: Y_RANGE,
+  rangeX: pinRangeX,
+  rangeY: PIN_Y_RANGE,
 };
 
 // Старт программы
