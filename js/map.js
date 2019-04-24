@@ -2,9 +2,6 @@
 
 // Константы
 // ----------
-var ESC_KEYCODE = 27;
-// var ENTER_KEYCODE = 13;
-
 var ADVERTS_AMOUNT = 8;
 var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
@@ -46,64 +43,7 @@ var LOCALE_RUS = {
 
 // Утилиты
 // ----------
-var getRandomInt = function (min, max) {
-  return Math.floor(Math.random() * (max + 1 - min)) + min;
-};
 
-var numberWithSpaces = function (number) {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-};
-
-var capitalizeFirstLetter = function (string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-};
-
-var shuffleArray = function (srcArray) {
-  var copiedArray = srcArray.slice();
-  var destArray = [];
-
-  while (copiedArray.length > 0) {
-    var random = getRandomInt(0, copiedArray.length - 1);
-    var element = copiedArray.splice(random, 1)[0];
-    destArray.push(element);
-  }
-
-  return destArray;
-};
-
-var removeChildren = function (elem) {
-  while (elem.lastChild) {
-    elem.removeChild(elem.lastChild);
-  }
-};
-
-var removeElements = function (elements) {
-  for (var i = 0; i < elements.length; i++) {
-    elements[i].remove();
-  }
-};
-
-var setBoolAttributes = function (elements, attribute) {
-  for (var i = 0; i < elements.length; i++) {
-    elements[i][attribute] = true;
-  }
-};
-
-var removeBoolAttributes = function (elements, attribute) {
-  for (var i = 0; i < elements.length; i++) {
-    elements[i][attribute] = false;
-  }
-};
-
-var renderFragment = function (data, callback, template) {
-  var fragment = document.createDocumentFragment();
-
-  for (var i = 0; i < data.length; i++) {
-    fragment.appendChild(callback(data[i], template));
-  }
-
-  return fragment;
-};
 
 // Форма
 var initForm = function (form) {
@@ -200,21 +140,21 @@ var generateAdvert = function (index, data) {
       avatar: data.avatarPath + (index < 10 ? '0' : '') + (index + 1) + '.png'
     },
     offer: {
-      title: data.titles[getRandomInt(0, data.titles.length - 1)],
+      title: window.util.getRandomElement(data.titles),
       address: '',
-      price: getRandomInt(1000, 1000000),
-      type: data.types[getRandomInt(0, data.types.length - 1)],
-      rooms: getRandomInt(1, 5),
-      guests: getRandomInt(1, 25),
-      checkin: data.checkInOut[getRandomInt(0, data.checkInOut.length - 1)],
-      checkout: data.checkInOut[getRandomInt(0, data.checkInOut.length - 1)],
-      features: data.features.slice(1, getRandomInt(0, data.features.length)),
+      price: window.util.getRandomInt(1000, 1000000),
+      type: window.util.getRandomElement(data.types),
+      rooms: window.util.getRandomInt(1, 5),
+      guests: window.util.getRandomInt(1, 25),
+      checkin: window.util.getRandomElement(data.checkInOut),
+      checkout: window.util.getRandomElement(data.checkInOut),
+      features: data.features.slice(1, window.util.getRandomInt(0, data.features.length)),
       description: '',
-      photos: shuffleArray(data.photos)
+      photos: window.util.shuffleArray(data.photos)
     },
     location: {
-      x: getRandomInt(data.rangeX.min, data.rangeX.max),
-      y: getRandomInt(data.rangeY.min, data.rangeY.max)
+      x: window.util.getRandomInt(data.rangeX.min, data.rangeX.max),
+      y: window.util.getRandomInt(data.rangeY.min, data.rangeY.max)
     }
   };
 
@@ -271,13 +211,13 @@ var renderPin = function (advert, template) {
 
 var renderPins = function () {
   var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
-  var pinsFragment = renderFragment(adverts, renderPin, pinTemplate);
+  var pinsFragment = window.util.renderFragment(adverts, renderPin, pinTemplate);
   pinsContainer.appendChild(pinsFragment);
 };
 
 var removePins = function () {
   var pins = pinsContainer.querySelectorAll('.map__pin:not(.map__pin--main)');
-  removeElements(pins);
+  window.util.removeElements(pins);
 };
 
 var savePinDefaultPosition = function (pin) {
@@ -292,7 +232,8 @@ var activatePin = function (pin) {
   pin.classList.add('map__pin--active');
 };
 
-var deactivatePin = function (pin) {
+var deactivatePin = function () {
+  var pin = map.querySelector('.map__pin--active');
   if (pin) {
     pin.classList.remove('map__pin--active');
   }
@@ -306,8 +247,8 @@ var renderCard = function (advert, template, locale) {
   card.querySelector('.popup__description').textContent = advert.offer.description;
   card.querySelector('.popup__text--address').textContent = advert.offer.address;
   card.querySelector('.popup__avatar').src = advert.author.avatar;
-  card.querySelector('.popup__type').textContent = capitalizeFirstLetter(locale[advert.offer.type]);
-  card.querySelector('.popup__text--price').textContent = numberWithSpaces(advert.offer.price, 3) + '₽/ночь';
+  card.querySelector('.popup__type').textContent = window.util.capitalizeFirstLetter(locale[advert.offer.type]);
+  card.querySelector('.popup__text--price').textContent = window.util.getFormatedPrice(advert.offer.price, 3) + '₽/ночь';
   card.querySelector('.popup__text--capacity').textContent = getAdvertCapacity(advert.offer.rooms, advert.offer.guests);
   card.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout;
 
@@ -316,15 +257,15 @@ var renderCard = function (advert, template, locale) {
   var featureTemplate = template.querySelector('.popup__feature');
 
   featureTemplate.classList.remove(featureTemplate.classList[1]);
-  removeChildren(featuresList);
-  featuresList.appendChild(renderFragment(features, renderCardFeature, featureTemplate));
+  window.util.removeChildren(featuresList);
+  featuresList.appendChild(window.util.renderFragment(features, renderCardFeature, featureTemplate));
 
   var photos = advert.offer.photos;
   var photosList = card.querySelector('.popup__photos');
   var photoTemplate = template.querySelector('.popup__photo');
 
-  removeChildren(photosList);
-  photosList.appendChild(renderFragment(photos, renderCardPhoto, photoTemplate));
+  window.util.removeChildren(photosList);
+  photosList.appendChild(window.util.renderFragment(photos, renderCardPhoto, photoTemplate));
 
   return card;
 };
@@ -411,7 +352,7 @@ var activateMap = function () {
 // Форма
 var disableAdForm = function () {
   adForm.classList.add('ad-form--disabled');
-  setBoolAttributes(adFormFieldsets, 'disabled');
+  window.util.setTrueInAttributes(adFormFieldsets, 'disabled');
 
   adForm.removeEventListener('submit', onAdFormSubmit);
   adForm.removeEventListener('reset', onAdFormReset);
@@ -433,7 +374,7 @@ var enableAdForm = function () {
   adFormRooms.addEventListener('change', onAdFormRoomsChange);
 
   adForm.classList.remove('ad-form--disabled');
-  removeBoolAttributes(adFormFieldsets, 'disabled');
+  window.util.setFalseInAttributes(adFormFieldsets, 'disabled');
 };
 
 var showAdFormErrors = function () {
@@ -488,29 +429,17 @@ var setAddressByPin = function (isPinActive) {
 // Обработчики
 // ----------
 
-
-var activatePin = function (pin) {
-  pin.classList.add('map__pin--active');
-};
-
-var deactivatePin = function (pin) {
-  if (pin) {
-    pin.classList.remove('map__pin--active');
-  }
-};
-
 var onPinClick = function (evt, advert) {
   evt.preventDefault();
   var pin = evt.currentTarget;
 
   if (!pin.classList.contains('map__pin--active')) {
-    var oldPin = map.querySelector('.map__pin--active');
-    deactivatePin(oldPin);
+    deactivatePin();
     insertCard(advert);
     activatePin(pin);
   } else {
     removeCard();
-    deactivatePin(pin);
+    deactivatePin();
   }
 };
 
@@ -520,11 +449,7 @@ var onCardCloseClick = function (evt) {
 };
 
 var onEscPressForCard = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
-    var pin = map.querySelector('.map__pin--active');
-    removeCard();
-    deactivatePin(pin);
-  }
+  window.util.isEscEvent(evt, {removeCard, deactivatePin});
 };
 
 var onClickForSuccess = function () {
@@ -532,9 +457,7 @@ var onClickForSuccess = function () {
 };
 
 var onEscPressForSuccess = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
-    hideSuccessMsg();
-  }
+  window.util.isEscEvent(evt, hideSuccessMsg);
 };
 
 var onAdFormSubmit = function (evt) {
