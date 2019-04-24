@@ -42,6 +42,37 @@
     'bungalo': 'бунгало',
   };
 
+  // Функции
+  // ----------
+  var generateAdvert = function (index, data) {
+    var advert = {
+      author: {
+        avatar: data.avatarPath + (index < 10 ? '0' : '') + (index + 1) + '.png'
+      },
+      offer: {
+        title: window.util.getRandomElement(data.titles),
+        address: '',
+        price: window.util.getRandomInt(1000, 1000000),
+        type: window.util.getRandomElement(data.types),
+        rooms: window.util.getRandomInt(1, 5),
+        guests: window.util.getRandomInt(1, 25),
+        checkin: window.util.getRandomElement(data.checkInOut),
+        checkout: window.util.getRandomElement(data.checkInOut),
+        features: data.features.slice(1, window.util.getRandomInt(0, data.features.length)),
+        description: '',
+        photos: window.util.shuffleArray(data.photos)
+      },
+      location: {
+        x: window.util.getRandomInt(data.location.rangeX.min, data.location.rangeX.max),
+        y: window.util.getRandomInt(data.location.rangeY.min, data.location.rangeY.max)
+      }
+    };
+
+    advert.offer.address = advert.location.x + ', ' + advert.location.y;
+
+    return advert;
+  };
+
   // DOM-элементы
   // ----------
   var map = document.querySelector('.map');
@@ -56,23 +87,23 @@
     min: 0,
     max: map.offsetWidth - MAIN_PIN_SIZES.width
   };
+  var advertsData = {
+    titles: TITLES,
+    types: TYPES,
+    checkInOut: CHECK_IN_OUT,
+    features: FEATURES,
+    photos: PHOTOS,
+    avatarPath: AVATAR_PATH,
+    location: {
+      rangeX: pinRangeX,
+      rangeY: PIN_Y_RANGE,
+    },
+  };
 
   // Интерфейс
   // ----------
   window.data = {
     advertsNum: ADVERTS_AMOUNT,
-    adverts: {
-      titles: TITLES,
-      types: TYPES,
-      checkInOut: CHECK_IN_OUT,
-      features: FEATURES,
-      photos: PHOTOS,
-      avatarPath: AVATAR_PATH,
-      location: {
-        rangeX: pinRangeX,
-        rangeY: PIN_Y_RANGE,
-      },
-    },
     pin: {
       sizes: PIN_SIZES,
       position: {
@@ -93,6 +124,15 @@
     },
     locales: {
       ru: LOCALE_RUS,
-    }
-  }
+    },
+    generateAdverts: function (amount) {
+      var adverts = [];
+
+      for (var i = 0; i < amount; i++) {
+        adverts[i] = generateAdvert(i, advertsData);
+      }
+
+      return adverts;
+    },
+  };
 })();
