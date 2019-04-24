@@ -2,44 +2,7 @@
 
 // Константы
 // ----------
-var ADVERTS_AMOUNT = 8;
-var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
-var TYPES = ['palace', 'flat', 'house', 'bungalo'];
-var CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
-var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
-var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
-var AVATAR_PATH = 'img/avatars/user';
-var PIN_Y_RANGE = {
-  min: 100,
-  max: 630
-};
-var PIN_SIZES = {
-  width: 50,
-  height: 70,
-};
-var MAIN_PIN_SIZES = {
-  width: 65,
-  height: 65,
-  pointerHeight: 22,
-};
-var MIN_PRICE_BY_TYPE = {
-  'bungalo': 0,
-  'flat': 1000,
-  'house': 5000,
-  'palace': 10000,
-};
-var GUESTS_BY_ROOMS = {
-  '1': ['1'],
-  '2': ['1', '2'],
-  '3': ['1', '2', '3'],
-  '100': ['0'],
-};
-var LOCALE_RUS = {
-  'palace': 'дворец',
-  'house': 'дом',
-  'flat': 'квартира',
-  'bungalo': 'бунгало',
-};
+
 
 // Утилиты
 // ----------
@@ -153,8 +116,8 @@ var generateAdvert = function (index, data) {
       photos: window.util.shuffleArray(data.photos)
     },
     location: {
-      x: window.util.getRandomInt(data.rangeX.min, data.rangeX.max),
-      y: window.util.getRandomInt(data.rangeY.min, data.rangeY.max)
+      x: window.util.getRandomInt(data.location.rangeX.min, data.location.rangeX.max),
+      y: window.util.getRandomInt(data.location.rangeY.min, data.location.rangeY.max)
     }
   };
 
@@ -196,8 +159,9 @@ var getAdvertCapacity = function (rooms, guests) {
 var renderPin = function (advert, template) {
   var pin = template.cloneNode(true);
   var pinImg = pin.querySelector('img');
+  var pinWidth = window.data.pin.sizes.width;
 
-  pin.style.left = (advert.location.x - PIN_SIZES.width / 2) + 'px';
+  pin.style.left = (advert.location.x - pinWidth / 2) + 'px';
   pin.style.top = advert.location.y + 'px';
   pinImg.src = advert.author.avatar;
   pinImg.alt = advert.offer.title;
@@ -210,7 +174,7 @@ var renderPin = function (advert, template) {
 };
 
 var renderPins = function () {
-  var adverts = generateAdverts(ADVERTS_AMOUNT, advertsData);
+  var adverts = generateAdverts(window.data.advertsNum, window.data.adverts);
   var pinsFragment = window.util.renderFragment(adverts, renderPin, pinTemplate);
   pinsContainer.appendChild(pinsFragment);
 };
@@ -410,11 +374,15 @@ var submitAdForm = function () {
 };
 
 var setAddressByPin = function (isPinActive) {
-  var marginTop = MAIN_PIN_SIZES.height / 2;
-  var marginLeft = MAIN_PIN_SIZES.width / 2;
+  var mainPinWidth = window.data.mainPin.sizes.width;
+  var mainPinHeight = window.data.mainPin.sizes.width;
+  var mainPinPointerHeight = window.data.mainPin.sizes.width;
+
+  var marginTop = mainPinHeight / 2;
+  var marginLeft = mainPinWidth / 2;
 
   if (isPinActive) {
-    marginTop = MAIN_PIN_SIZES.height + MAIN_PIN_SIZES.pointerHeight;
+    marginTop = mainPinHeight + mainPinPointerHeight;
   }
 
   var location = {
@@ -449,7 +417,7 @@ var onCardCloseClick = function (evt) {
 };
 
 var onEscPressForCard = function (evt) {
-  window.util.isEscEvent(evt, {removeCard, deactivatePin});
+  window.util.isEscEvent(evt, {1: removeCard, 2: deactivatePin});
 };
 
 var onClickForSuccess = function () {
@@ -475,7 +443,7 @@ var onAdFormReset = function (evt) {
 };
 
 var onAdFormTypeChange = function () {
-  setFormElementLimitByAnother(adFormType, adFormPrice, 'min', MIN_PRICE_BY_TYPE);
+  setFormElementLimitByAnother(adFormType, adFormPrice, 'min', window.data.form.minPriceByType);
 };
 
 var onAdFormTimeInChange = function () {
@@ -487,7 +455,7 @@ var onAdFormTimeOutChange = function () {
 };
 
 var onAdFormRoomsChange = function () {
-  setSelectLimitsByAnother(adFormRooms, adFormCapacity, GUESTS_BY_ROOMS);
+  setSelectLimitsByAnother(adFormRooms, adFormCapacity, window.data.form.guestsByRooms);
 };
 
 // DOM-элементы
@@ -518,22 +486,7 @@ var cardTemplate = template.content.querySelector('.map__card');
 // Данные
 // ----------
 var isPageActive = false;
-var pinRangeX = {
-  min: PIN_SIZES.width / 2,
-  max: map.offsetWidth - PIN_SIZES.width / 2
-};
-var locale = LOCALE_RUS;
-var advertsData = {
-  titles: TITLES,
-  types: TYPES,
-  checkInOut: CHECK_IN_OUT,
-  features: FEATURES,
-  photos: PHOTOS,
-  avatarPath: AVATAR_PATH,
-  dimensions: [PIN_SIZES.width, PIN_SIZES.height],
-  rangeX: pinRangeX,
-  rangeY: PIN_Y_RANGE,
-};
+var locale = window.data.locales.ru;
 
 // Старт программы
 // ----------
