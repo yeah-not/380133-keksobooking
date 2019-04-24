@@ -1,98 +1,5 @@
 'use strict';
 
-// Константы
-// ----------
-
-
-// Утилиты
-// ----------
-
-
-// Форма
-var initForm = function (form) {
-  var elements = form.elements;
-
-  for (var i = 0; i < elements.length; i++) {
-    var element = elements[i];
-    var value = element.value;
-    var placeholder = element.placeholder;
-    var checked = element.checked;
-
-    if (value) {
-      element.dataset.initValue = value;
-    }
-
-    if (placeholder) {
-      element.dataset.initPlaceholder = placeholder;
-    }
-
-    if (checked) {
-      element.dataset.initChecked = checked;
-    }
-  }
-};
-
-var clearForm = function (form) {
-  var elements = form.elements;
-
-  for (var i = 0; i < elements.length; i++) {
-    var element = elements[i];
-    var initValue = element.dataset.initValue;
-    var initPlaceholder = element.dataset.initPlaceholder;
-    var initChecked = element.dataset.initChecked;
-
-    if ('value' in element) {
-      if (initValue) {
-        element.value = initValue;
-      } else {
-        element.value = '';
-      }
-    }
-
-    if ('placeholder' in element) {
-      if (initPlaceholder) {
-        element.placeholder = initPlaceholder;
-      } else {
-        element.placeholder = '';
-      }
-    }
-
-    if ('checked' in element) {
-      if (initChecked) {
-        element.checked = initChecked;
-      } else {
-        element.checked = false;
-      }
-    }
-  }
-};
-
-var setFormElementLimitByAnother = function (srcElement, destElement, type, rules) {
-  var value = rules[srcElement.value];
-  destElement.min = value;
-  destElement.placeholder = value;
-};
-
-var syncSelects = function (srcSelect, destSelect) {
-  destSelect.selectedIndex = srcSelect.selectedIndex;
-};
-
-var setSelectLimitsByAnother = function (srcSelect, destSelect, rules) {
-  var destVariants = rules[srcSelect.value];
-  var destOptions = destSelect.querySelectorAll('option');
-
-  for (var i = 0; i < destOptions.length; i++) {
-    var option = destOptions[i];
-
-    if (destVariants.indexOf(option.value) >= 0) {
-      option.disabled = false;
-      option.selected = true;
-    } else {
-      option.disabled = true;
-    }
-  }
-};
-
 // Функции
 // ----------
 
@@ -233,7 +140,7 @@ var removeCard = function () {
 var initPage = function () {
   savePinDefaultPosition(mainPin);
   setAddressByPin(false);
-  initForm(adForm);
+  window.util.initForm(adForm);
 };
 
 var deactivatePage = function () {
@@ -325,7 +232,8 @@ var hideSuccessMsg = function () {
 
 var resetAdForm = function () {
   hideAdFormErrors();
-  clearForm(adForm);
+
+  window.util.clearForm(adForm);
   refreshMap(true);
   deactivatePage();
 };
@@ -405,19 +313,19 @@ var onAdFormReset = function (evt) {
 };
 
 var onAdFormTypeChange = function () {
-  setFormElementLimitByAnother(adFormType, adFormPrice, 'min', window.data.form.minPriceByType);
+  window.util.setFormElementLimitByAnother(adFormType, adFormPrice, 'min', window.data.form.minPriceByType);
 };
 
 var onAdFormTimeInChange = function () {
-  syncSelects(adFormTimeIn, adFormTimeOut);
+  window.util.syncSelects(adFormTimeIn, adFormTimeOut);
 };
 
 var onAdFormTimeOutChange = function () {
-  syncSelects(adFormTimeOut, adFormTimeIn);
+  window.util.syncSelects(adFormTimeOut, adFormTimeIn);
 };
 
 var onAdFormRoomsChange = function () {
-  setSelectLimitsByAnother(adFormRooms, adFormCapacity, window.data.form.guestsByRooms);
+  window.util.setSelectLimitsByAnother(adFormRooms, adFormCapacity, window.data.form.guestsByRooms);
 };
 
 // DOM-элементы

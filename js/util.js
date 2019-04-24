@@ -9,6 +9,7 @@
   // Интерфейс
   // ----------
   window.util = {
+    // Общие
     getRandomInt: function (min, max) {
       return Math.floor(Math.random() * (max + 1 - min)) + min;
     },
@@ -33,6 +34,8 @@
 
       return destArray;
     },
+
+    // DOM-элементы
     removeChildren: function (elem) {
       while (elem.lastChild) {
         elem.removeChild(elem.lastChild);
@@ -62,6 +65,89 @@
 
       return fragment;
     },
+
+    // Форма
+    initForm: function (form) {
+      var elements = form.elements;
+
+      for (var i = 0; i < elements.length; i++) {
+        var element = elements[i];
+        var value = element.value;
+        var placeholder = element.placeholder;
+        var checked = element.checked;
+
+        if (value) {
+          element.dataset.initValue = value;
+        }
+
+        if (placeholder) {
+          element.dataset.initPlaceholder = placeholder;
+        }
+
+        if (checked) {
+          element.dataset.initChecked = checked;
+        }
+      }
+    },
+    clearForm: function (form) {
+      var elements = form.elements;
+
+      for (var i = 0; i < elements.length; i++) {
+        var element = elements[i];
+        var initValue = element.dataset.initValue;
+        var initPlaceholder = element.dataset.initPlaceholder;
+        var initChecked = element.dataset.initChecked;
+
+        if ('value' in element) {
+          if (initValue) {
+            element.value = initValue;
+          } else {
+            element.value = '';
+          }
+        }
+
+        if ('placeholder' in element) {
+          if (initPlaceholder) {
+            element.placeholder = initPlaceholder;
+          } else {
+            element.placeholder = '';
+          }
+        }
+
+        if ('checked' in element) {
+          if (initChecked) {
+            element.checked = initChecked;
+          } else {
+            element.checked = false;
+          }
+        }
+      }
+    },
+    setFormElementLimitByAnother: function (srcElement, destElement, type, rules) {
+      var value = rules[srcElement.value];
+      destElement.min = value;
+      destElement.placeholder = value;
+    },
+    syncSelects: function (srcSelect, destSelect) {
+      destSelect.selectedIndex = srcSelect.selectedIndex;
+    },
+    setSelectLimitsByAnother: function (srcSelect, destSelect, rules) {
+      var destVariants = rules[srcSelect.value];
+      var destOptions = destSelect.querySelectorAll('option');
+
+      for (var i = 0; i < destOptions.length; i++) {
+        var option = destOptions[i];
+
+        if (destVariants.indexOf(option.value) >= 0) {
+          option.disabled = false;
+          option.selected = true;
+        } else {
+          option.disabled = true;
+        }
+      }
+    },
+
+    // События
     isEscEvent: function (evt, action) {
       if (evt.keyCode === ESC_KEYCODE) {
         if (typeof(action) === 'object') {
