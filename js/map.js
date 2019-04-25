@@ -24,54 +24,6 @@ var getAdvertCapacity = function (rooms, guests) {
   return rooms + ' ' + roomsLabel + ' для ' + guests + ' ' + guestsLabel;
 };
 
-// Метки
-var renderPin = function (advert, template) {
-  var pin = template.cloneNode(true);
-  var pinImg = pin.querySelector('img');
-  var pinWidth = window.data.pin.sizes.width;
-
-  pin.style.left = (advert.location.x - pinWidth / 2) + 'px';
-  pin.style.top = advert.location.y + 'px';
-  pinImg.src = advert.author.avatar;
-  pinImg.alt = advert.offer.title;
-
-  pin.addEventListener('click', function (evt) {
-    onPinClick(evt, advert);
-  });
-
-  return pin;
-};
-
-var renderPins = function () {
-  var adverts = window.data.generateAdverts(window.data.advertsNum);
-  var pinsFragment = window.util.renderFragment(adverts, renderPin, pinTemplate);
-  pinsContainer.appendChild(pinsFragment);
-};
-
-var removePins = function () {
-  var pins = pinsContainer.querySelectorAll('.map__pin:not(.map__pin--main)');
-  window.util.removeElements(pins);
-};
-
-var savePinDefaultPosition = function (pin) {
-  var left = pin.offsetLeft;
-  var top = pin.offsetTop;
-
-  pin.dataset.defaultLeft = left + 'px';
-  pin.dataset.defaultTop = top + 'px';
-};
-
-var activatePin = function (pin) {
-  pin.classList.add('map__pin--active');
-};
-
-var deactivatePin = function () {
-  var pin = map.querySelector('.map__pin--active');
-  if (pin) {
-    pin.classList.remove('map__pin--active');
-  }
-};
-
 // Карточка
 var renderCard = function (advert, template, locale) {
   var card = template.cloneNode(true);
@@ -123,7 +75,6 @@ var insertCard = function (advert) {
 
   var cardClose = card.querySelector('.popup__close');
   cardClose.addEventListener('click', onCardCloseClick);
-  document.addEventListener('keydown', onEscPressForCard);
 };
 
 var removeCard = function () {
@@ -131,16 +82,23 @@ var removeCard = function () {
 
   if (card) {
     card.remove();
-    document.removeEventListener('keydown', onEscPressForCard);
   }
 
 };
 
 // Страница
 var initPage = function () {
-  savePinDefaultPosition(mainPin);
+  window.pin.saveDefaultPosition(mainPin);
   setAddressByPin(false);
   window.util.initForm(adForm);
+
+  window.pin.onActive = function (advert) {
+    insertCard(advert);
+  };
+
+  window.pin.onDeactive = function () {
+    removeCard();
+  };
 };
 
 var deactivatePage = function () {
@@ -156,11 +114,11 @@ var activatePage = function () {
 
 // Карта
 var refreshMap = function (reset) {
-  removePins();
+  window.pin.removeAll();
   removeCard();
 
   if (!reset) {
-    renderPins();
+    window.pin.renderAll();
   } else {
     movePinToDefaultPosition(mainPin);
   }
@@ -266,29 +224,14 @@ var setAddressByPin = function (isPinActive) {
 
 // Обработчики
 // ----------
-
-var onPinClick = function (evt, advert) {
-  evt.preventDefault();
-  var pin = evt.currentTarget;
-
-  if (!pin.classList.contains('map__pin--active')) {
-    deactivatePin();
-    insertCard(advert);
-    activatePin(pin);
-  } else {
-    removeCard();
-    deactivatePin();
-  }
-};
-
 var onCardCloseClick = function (evt) {
   evt.preventDefault();
   removeCard();
 };
 
-var onEscPressForCard = function (evt) {
-  window.util.isEscEvent(evt, {1: removeCard, 2: deactivatePin});
-};
+// var onEscPressForCard = function (evt) {
+//   window.util.isEscEvent(evt, {1: removeCard, 2: window.pin.deactivate});
+// };
 
 var onClickForSuccess = function () {
   hideSuccessMsg();
@@ -331,7 +274,6 @@ var onAdFormRoomsChange = function () {
 // DOM-элементы
 // ----------
 var map = document.querySelector('.map');
-var pinsContainer = document.querySelector('.map__pins');
 var filtersContainer = document.querySelector('.map__filters-container');
 var mainPin = document.querySelector('.map__pin--main');
 var success = document.querySelector('.success');
@@ -350,7 +292,6 @@ var adFormCapacity = adForm.querySelector('#capacity');
 // Шаблоны
 // ----------
 var template = document.querySelector('template');
-var pinTemplate = template.content.querySelector('.map__pin');
 var cardTemplate = template.content.querySelector('.map__card');
 
 // Данные
