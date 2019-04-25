@@ -3,89 +3,6 @@
 // Функции
 // ----------
 
-// Объявления
-
-var getAdvertCapacity = function (rooms, guests) {
-  var roomsRemainder = rooms % 10;
-  var guestsRemainder = guests % 10;
-  var roomsLabel = 'комната';
-  var guestsLabel = 'гостя';
-
-  if (roomsRemainder > 1 && roomsRemainder < 5) {
-    roomsLabel = 'комнаты';
-  } else if (roomsRemainder >= 5) {
-    roomsLabel = 'комнат';
-  }
-
-  if (guestsRemainder > 1) {
-    guestsLabel = 'гостей';
-  }
-
-  return rooms + ' ' + roomsLabel + ' для ' + guests + ' ' + guestsLabel;
-};
-
-// Карточка
-var renderCard = function (advert, template, locale) {
-  var card = template.cloneNode(true);
-
-  card.querySelector('.popup__title').textContent = advert.offer.title;
-  card.querySelector('.popup__description').textContent = advert.offer.description;
-  card.querySelector('.popup__text--address').textContent = advert.offer.address;
-  card.querySelector('.popup__avatar').src = advert.author.avatar;
-  card.querySelector('.popup__type').textContent = window.util.capitalizeFirstLetter(locale[advert.offer.type]);
-  card.querySelector('.popup__text--price').textContent = window.util.getFormatedPrice(advert.offer.price, 3) + '₽/ночь';
-  card.querySelector('.popup__text--capacity').textContent = getAdvertCapacity(advert.offer.rooms, advert.offer.guests);
-  card.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout;
-
-  var features = advert.offer.features;
-  var featuresList = card.querySelector('.popup__features');
-  var featureTemplate = template.querySelector('.popup__feature');
-
-  featureTemplate.classList.remove(featureTemplate.classList[1]);
-  window.util.removeChildren(featuresList);
-  featuresList.appendChild(window.util.renderFragment(features, renderCardFeature, featureTemplate));
-
-  var photos = advert.offer.photos;
-  var photosList = card.querySelector('.popup__photos');
-  var photoTemplate = template.querySelector('.popup__photo');
-
-  window.util.removeChildren(photosList);
-  photosList.appendChild(window.util.renderFragment(photos, renderCardPhoto, photoTemplate));
-
-  return card;
-};
-
-var renderCardFeature = function (featureName, template) {
-  var feature = template.cloneNode();
-  feature.classList.add(feature.classList[0] + '--' + featureName);
-  return feature;
-};
-
-var renderCardPhoto = function (photoSrc, template) {
-  var photo = template.cloneNode();
-  photo.src = photoSrc;
-  return photo;
-};
-
-var insertCard = function (advert) {
-  removeCard();
-
-  var card = renderCard(advert, cardTemplate, locale);
-  map.insertBefore(card, filtersContainer);
-
-  var cardClose = card.querySelector('.popup__close');
-  cardClose.addEventListener('click', onCardCloseClick);
-};
-
-var removeCard = function () {
-  var card = map.querySelector('.map__card');
-
-  if (card) {
-    card.remove();
-  }
-
-};
-
 // Страница
 var initPage = function () {
   window.pin.saveDefaultPosition(mainPin);
@@ -93,11 +10,11 @@ var initPage = function () {
   window.util.initForm(adForm);
 
   window.pin.onActive = function (advert) {
-    insertCard(advert);
+    window.card.insert(advert);
   };
 
   window.pin.onDeactive = function () {
-    removeCard();
+    window.card.remove();
   };
 };
 
@@ -115,21 +32,13 @@ var activatePage = function () {
 // Карта
 var refreshMap = function (reset) {
   window.pin.removeAll();
-  removeCard();
+  window.card.remove();
 
   if (!reset) {
     window.pin.renderAll();
   } else {
-    movePinToDefaultPosition(mainPin);
+    window.pin.movePinToDefaultPosition(mainPin);
   }
-};
-
-var movePinToDefaultPosition = function (pin) {
-  var left = pin.dataset.defaultLeft;
-  var top = pin.dataset.defaultTop;
-
-  pin.style.left = left;
-  pin.style.top = top;
 };
 
 var deactivateMap = function () {
@@ -224,14 +133,6 @@ var setAddressByPin = function (isPinActive) {
 
 // Обработчики
 // ----------
-var onCardCloseClick = function (evt) {
-  evt.preventDefault();
-  removeCard();
-};
-
-// var onEscPressForCard = function (evt) {
-//   window.util.isEscEvent(evt, {1: removeCard, 2: window.pin.deactivate});
-// };
 
 var onClickForSuccess = function () {
   hideSuccessMsg();
@@ -291,8 +192,6 @@ var adFormCapacity = adForm.querySelector('#capacity');
 
 // Шаблоны
 // ----------
-var template = document.querySelector('template');
-var cardTemplate = template.content.querySelector('.map__card');
 
 // Данные
 // ----------

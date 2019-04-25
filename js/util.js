@@ -150,7 +150,7 @@
     // События
     isEscEvent: function (evt, action) {
       if (evt.keyCode === ESC_KEYCODE) {
-        if (typeof(action) === 'object') {
+        if (typeof action === 'object') {
           var actions = action;
           for (var method in actions) {
             if (actions.hasOwnProperty(method)) {

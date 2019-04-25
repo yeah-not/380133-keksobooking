@@ -122,8 +122,12 @@
       minPriceByType: MIN_PRICE_BY_TYPE,
       guestsByRooms: GUESTS_BY_ROOMS,
     },
+    lang: 'ru',
     locales: {
       ru: LOCALE_RUS,
+    },
+    getLocale: function () {
+      return this.locales[this.lang];
     },
     generateAdverts: function (amount) {
       var adverts = [];
