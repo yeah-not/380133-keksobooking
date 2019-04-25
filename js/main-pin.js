@@ -11,19 +11,22 @@
   // ----------
 
   // Drag'n'drop
-  var pickMainPin = function (evt) {
+  var take = function (evt) {
     startCoords = {
       x: evt.clientX,
       y: evt.clientY
     };
 
-    activateMap();
-
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
+
+    window.mainPin.onTake();
   };
 
-  var moveMainPin = function (evt) {
+  var move = function (evt) {
+    var positionRangeX = window.data.mainPin.position.rangeX;
+    var positionRangeY = window.data.mainPin.position.rangeY;
+
     var shift = {
       x: evt.clientX - startCoords.x,
       y: evt.clientY - startCoords.y
@@ -37,56 +40,69 @@
     var offsetTop = mainPin.offsetTop + shift.y;
     var offsetLeft = mainPin.offsetLeft + shift.x;
 
-    if (offsetTop >= PIN_Y_RANGE.min && offsetTop <= PIN_Y_RANGE.max) {
+    if (offsetTop >= positionRangeY.min && offsetTop <= positionRangeY.max) {
       mainPin.style.top = offsetTop + 'px';
     }
 
-    if (offsetLeft >= pinRangeX.min && offsetLeft <= pinRangeX.max) {
+    if (offsetLeft >= positionRangeX.min && offsetLeft <= positionRangeX.max) {
       mainPin.style.left = offsetLeft + 'px';
     }
 
-    // if (offsetTop === PIN_Y_RANGE.max) debugger;
-    setAddressByPin(true);
+    window.mainPin.onMove();
   };
 
-  var putMainPin = function () {
+  var put = function () {
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
 
-    setAddressByPin(true);
-    refreshMap(false);
-
-    if (!isPageActive) {
-      enableAdForm();
-    }
+    window.mainPin.onPut();
   };
 
   // Обработчики
   // ----------
   var onMainPinMouseDown = function (evt) {
-    pickMainPin(evt);
+    take(evt);
   };
 
   var onMouseMove = function (evt) {
-    moveMainPin(evt);
+    move(evt);
   };
 
   var onMouseUp = function (evt) {
-    putMainPin(evt);
+    put(evt);
   };
 
   // DOM-элементы
   // ----------
-  var map = document.querySelector('.map');
   var mainPin = document.querySelector('.map__pin--main');
 
   // Старт программы
   // ----------
   var startCoords = {};
-  var pinRangeX = {
-    min: 0,
-    max: map.offsetWidth - MAIN_PIN_SIZES.width
-  };
-
   mainPin.addEventListener('mousedown', onMainPinMouseDown);
+
+  window.mainPin = {
+    getLocation: function (isPinActive) {
+      var mainPinWidth = window.data.mainPin.sizes.width;
+      var mainPinHeight = window.data.mainPin.sizes.width;
+      var mainPinPointerHeight = window.data.mainPin.sizes.width;
+
+      var marginTop = mainPinHeight / 2;
+      var marginLeft = mainPinWidth / 2;
+
+      if (isPinActive) {
+        marginTop = mainPinHeight + mainPinPointerHeight;
+      }
+
+      var location = {
+        x: mainPin.offsetLeft + marginLeft,
+        y: mainPin.offsetTop + marginTop,
+      };
+
+      return location;
+    },
+    onTake: function () {},
+    onMove: function () {},
+    onPut: function () {},
+  };
 })();
