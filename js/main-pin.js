@@ -11,19 +11,19 @@
   // ----------
 
   // Drag'n'drop
-  var pickMainPin = function (evt) {
+  var take = function (evt) {
     startCoords = {
       x: evt.clientX,
       y: evt.clientY
     };
 
-    activateMap();
-
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
+
+    window.mainPin.onTake();
   };
 
-  var moveMainPin = function (evt) {
+  var move = function (evt) {
     var positionRangeX = window.data.mainPin.position.rangeX;
     var positionRangeY = window.data.mainPin.position.rangeY;
 
@@ -48,33 +48,28 @@
       mainPin.style.left = offsetLeft + 'px';
     }
 
-    setAddressByPin(true);
+    window.mainPin.onMove();
   };
 
-  var putMainPin = function () {
+  var put = function () {
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
 
-    setAddressByPin(true);
-    refreshMap(false);
-
-    if (!isPageActive) {
-      enableAdForm();
-    }
+    window.mainPin.onPut();
   };
 
   // Обработчики
   // ----------
   var onMainPinMouseDown = function (evt) {
-    pickMainPin(evt);
+    take(evt);
   };
 
   var onMouseMove = function (evt) {
-    moveMainPin(evt);
+    move(evt);
   };
 
   var onMouseUp = function (evt) {
-    putMainPin(evt);
+    put(evt);
   };
 
   // DOM-элементы
@@ -84,6 +79,30 @@
   // Старт программы
   // ----------
   var startCoords = {};
-
   mainPin.addEventListener('mousedown', onMainPinMouseDown);
+
+  window.mainPin = {
+    getLocation: function (isPinActive) {
+      var mainPinWidth = window.data.mainPin.sizes.width;
+      var mainPinHeight = window.data.mainPin.sizes.width;
+      var mainPinPointerHeight = window.data.mainPin.sizes.width;
+
+      var marginTop = mainPinHeight / 2;
+      var marginLeft = mainPinWidth / 2;
+
+      if (isPinActive) {
+        marginTop = mainPinHeight + mainPinPointerHeight;
+      }
+
+      var location = {
+        x: mainPin.offsetLeft + marginLeft,
+        y: mainPin.offsetTop + marginTop,
+      };
+
+      return location;
+    },
+    onTake: function () {},
+    onMove: function () {},
+    onPut: function () {},
+  };
 })();
