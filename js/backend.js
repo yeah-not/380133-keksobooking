@@ -22,12 +22,12 @@
       if (xhr.status === STATUS_SUCCESS) {
         onSuccess(xhr.response);
       } else {
-        onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
+        onError('Статус ответа сервера: ' + xhr.status + ' ' + xhr.statusText);
       }
     });
 
     xhr.addEventListener('error', function () {
-      onError('Ошибка соединения');
+      onError('Ошибка соединения с сервером');
     });
 
     xhr.addEventListener('timeout', function () {
@@ -35,15 +35,6 @@
     });
 
     return xhr;
-  };
-
-  // TEMP:
-  var onXHRSuccess = function (response) {
-    console.log(response);
-  };
-
-  var onXHRError = function (message) {
-    console.log(message);
   };
 
   // Интерфейс
@@ -62,7 +53,4 @@
       xhr.send(data);
     }
   };
-
-  // TEMP:
-  // window.backend.load(onXHRSuccess, onXHRError);
 })();

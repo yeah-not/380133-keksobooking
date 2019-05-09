@@ -9,7 +9,9 @@
   <title>Кексобукинг</title>
 </head>
 <body>
-
+  <section class="message-panel">
+    <!-- Вывод информационных сообщений  -->
+  </section>
   <main>
     <div class="promo">
       <h1 class="promo__title visually-hidden">Keksobooking. Кексы по соседству</h1>
@@ -240,6 +242,9 @@
   </footer>
 
   <template>
+    <div class="message-bar message-bar--error">
+      <p><strong class="message-bar__label">Ошибка</strong> <span class="message-bar__text">Сообщение об ошибке</span></p>
+    </div>
     <article class="map__card popup">
       <img src="img/avatars/user01.png" class="popup__avatar" width="70" height="70" alt="Аватар пользователя">
       <button type="button" class="popup__close">Закрыть</button>
@@ -269,6 +274,7 @@
   <script src="js/util.js"></script>
   <script src="js/data.js"></script>
   <script src="js/backend.js"></script>
+  <script src="js/message.js"></script>
   <script src="js/pin.js"></script>
   <script src="js/main-pin.js"></script>
   <script src="js/card.js"></script>

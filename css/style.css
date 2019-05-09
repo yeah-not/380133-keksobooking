@@ -77,6 +77,33 @@ fieldset {
   border: 0;
 }
 
+/* Message panel */
+.message-panel {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.message-bar {
+  padding: 10px 30px;
+  font-size: 18px;
+}
+
+.message-bar--error {
+  color: #fff;
+  background: rgba(255, 0, 0, 0.5);
+}
+
+.message-bar__label {
+  display: inline-block;
+
+  padding: 4px;
+  margin-right: 3px;
+
+  border: 2px solid #fff;
+}
 
 /* Map */
 

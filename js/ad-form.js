@@ -39,7 +39,7 @@
   };
 
   var onXHRError = function (message) {
-    console.log(message);
+    window.message.append('error', message);
   };
 
   var onClickForSuccessMsg = function () {

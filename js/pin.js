@@ -72,7 +72,7 @@
   };
 
   var onXHRError = function (message) {
-    console.log(message);
+    window.message.append('error', message);
   };
 
   // DOM-элементы
