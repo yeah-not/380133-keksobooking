@@ -46,7 +46,7 @@
     window.card.remove();
 
     if (!reset) {
-      window.pin.renderAll();
+      window.pin.loadAll();
     } else {
       window.pin.movePinToDefaultPosition(mainPin);
     }

@@ -23,6 +23,17 @@
     return pin;
   };
 
+  var renderAll = function (adverts, amount) {
+    // var adverts = window.data.generateAdverts(window.data.advertsNum);
+    if (amount) {
+      adverts = window.util.shuffleArray(adverts).slice(0, amount);
+    }
+    var pinsFragment = window.util.renderFragment(adverts, renderOne, pinTemplate);
+    pinsContainer.appendChild(pinsFragment);
+
+    document.addEventListener('keydown', onEscPress);
+  };
+
   var activate = function (pin, advert) {
     deactivate();
     pin.classList.add('map__pin--active');
@@ -56,6 +67,14 @@
     window.util.isEscEvent(evt, deactivate);
   };
 
+  var onXHRSuccess = function (response) {
+    renderAll(response, window.data.advertsNum);
+  };
+
+  var onXHRError = function (message) {
+    console.log(message);
+  };
+
   // DOM-элементы
   // ----------
   var map = document.querySelector('.map');
@@ -69,12 +88,8 @@
   // Интерфейс
   // ----------
   window.pin = {
-    renderAll: function () {
-      var adverts = window.data.generateAdverts(window.data.advertsNum);
-      var pinsFragment = window.util.renderFragment(adverts, renderOne, pinTemplate);
-      pinsContainer.appendChild(pinsFragment);
-
-      document.addEventListener('keydown', onEscPress);
+    loadAll: function () {
+      window.backend.load(onXHRSuccess, onXHRError);
     },
     removeAll: function () {
       var pins = pinsContainer.querySelectorAll('.map__pin:not(.map__pin--main)');

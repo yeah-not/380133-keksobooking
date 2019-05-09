@@ -64,5 +64,5 @@
   };
 
   // TEMP:
-  window.backend.load(onXHRSuccess, onXHRError);
+  // window.backend.load(onXHRSuccess, onXHRError);
 })();
