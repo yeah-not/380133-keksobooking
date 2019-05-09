@@ -1,3 +1,5 @@
 1. Location <> Position;
 2. Locale
 3. isPageActive
+4. bind для обработчиков с параметрами
+5. Комменты с названиями модулей
