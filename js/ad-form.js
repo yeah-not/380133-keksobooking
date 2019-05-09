@@ -31,13 +31,17 @@
     window.adForm.onReset();
   };
 
-  var submit = function () {
-    adForm.reset();
-    showSuccessMsg();
-  };
-
   // Обработчики
   // ----------
+  var onXHRSuccess = function () {
+    showSuccessMsg();
+    reset();
+  };
+
+  var onXHRError = function (message) {
+    console.log(message);
+  };
+
   var onClickForSuccessMsg = function () {
     hideSuccessMsg();
   };
@@ -48,7 +52,8 @@
 
   var onAdFormSubmit = function (evt) {
     evt.preventDefault();
-    submit();
+    var formData = new FormData(adForm);
+    window.backend.upload(formData, onXHRSuccess, onXHRError);
   };
 
   var onAdFormSubmitClick = function () {
