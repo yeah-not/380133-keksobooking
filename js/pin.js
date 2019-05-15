@@ -1,13 +1,20 @@
 'use strict';
 
 (function () {
-  // Константы
-  // ----------
-
   // Функции
   // ----------
   var updateAll = function () {
-    renderAll(advertsData, window.data.advertsNum);
+    var adverts = advertsData;
+
+    for (var key in advertFilters) {
+      if (advertFilters.hasOwnProperty(key)) {
+        adverts = adverts.filter(function (advert) {
+          return advert.offer[key] === advertFilters[key];
+        });
+      }
+    }
+
+    renderAll(adverts, window.data.advertsNum);
   };
 
   var renderOne = function (advert, template) {
@@ -92,6 +99,10 @@
   // Старт программы
   // ----------
   var advertsData = [];
+  var advertFilters = {
+    type: 'flat',
+    rooms: 1,
+  };
 
   // Интерфейс
   // ----------
