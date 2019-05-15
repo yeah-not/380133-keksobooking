@@ -14,6 +14,8 @@
   // Страница
   var initMap = function () {
     disableMap();
+    window.filters.deactivate();
+
     window.pin.saveDefaultPosition(mainPin);
     window.adForm.init();
     setAddressByMainPin(false);
@@ -27,6 +29,7 @@
     window.adForm.onReset = function () {
       refreshMap(true);
       disableMap();
+      window.filters.deactivate();
     };
     window.mainPin.onTake = function () {
       enableMap();
@@ -38,6 +41,7 @@
       refreshMap(false);
       setAddressByMainPin(true);
       window.adForm.enable();
+      window.filters.activate();
     };
   };
 
