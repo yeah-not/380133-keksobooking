@@ -37,7 +37,7 @@
       messageBar.addEventListener('click', onMessageBarClick);
 
       messagePanel.appendChild(messageBar);
-      // setTimeout(remove, REMOVE_TIMEOUT, messageBar);
+      setTimeout(remove, REMOVE_TIMEOUT, messageBar);
     }
   };
 })();

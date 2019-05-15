@@ -6,6 +6,10 @@
 
   // Функции
   // ----------
+  var updateAll = function () {
+    renderAll(advertsData, window.data.advertsNum);
+  };
+
   var renderOne = function (advert, template) {
     var pin = template.cloneNode(true);
     var pinImg = pin.querySelector('img');
@@ -24,7 +28,6 @@
   };
 
   var renderAll = function (adverts, amount) {
-    // var adverts = window.data.generateAdverts(window.data.advertsNum);
     if (amount) {
       adverts = window.util.shuffleArray(adverts).slice(0, amount);
     }
@@ -68,7 +71,8 @@
   };
 
   var onXHRSuccess = function (response) {
-    renderAll(response, window.data.advertsNum);
+    advertsData = response;
+    updateAll();
   };
 
   var onXHRError = function (message) {
@@ -85,10 +89,16 @@
   var template = document.querySelector('template');
   var pinTemplate = template.content.querySelector('.map__pin');
 
+  // Старт программы
+  // ----------
+  var advertsData = [];
+
   // Интерфейс
   // ----------
   window.pin = {
     loadAll: function () {
+      // var advertsData = window.data.generateAdverts(window.data.advertsNum);
+      // updateAll();
       window.backend.load(onXHRSuccess, onXHRError);
     },
     removeAll: function () {
