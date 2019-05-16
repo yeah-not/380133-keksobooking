@@ -38,7 +38,7 @@
   var PRICE_BY_FILTER = {
     low: {min: 0, max: 10000},
     middle: {min: 10000, max: 50000},
-    high: {min: 50000, max: Infinity},
+    high: {min: 50000, max: 1000000},
   };
   var LOCALE_RUS = {
     'palace': 'дворец',
@@ -50,6 +50,8 @@
   // Функции
   // ----------
   var generateAdvert = function (index, data) {
+    var randomPriceRange = window.util.getRandomProperty(PRICE_BY_FILTER);
+
     var advert = {
       author: {
         avatar: data.avatarPath + '0' + window.util.getRandomInt(1, 8) + '.png'
@@ -57,7 +59,7 @@
       offer: {
         title: window.util.getRandomElement(data.titles),
         address: '',
-        price: window.util.getRandomInt(1000, 1000000),
+        price: window.util.getRandomInt(randomPriceRange.min, randomPriceRange.max),
         type: window.util.getRandomElement(data.types),
         rooms: window.util.getRandomInt(1, 3),
         guests: window.util.getRandomInt(1, 3),

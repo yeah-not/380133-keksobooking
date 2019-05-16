@@ -11,10 +11,14 @@
   window.util = {
     // Общие
     getRandomInt: function (min, max) {
-      return Math.floor(Math.random() * (max + 1 - min)) + min;
+      return Math.floor(min + Math.random() * (max + 1 - min));
     },
     getRandomElement: function (array) {
       return array[this.getRandomInt(0, array.length - 1)];
+    },
+    getRandomProperty: function (object) {
+      var keys = Object.keys(object);
+      return object[keys[Math.floor(keys.length * Math.random())]];
     },
     getFormatedPrice: function (number) {
       return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
