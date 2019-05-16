@@ -50,9 +50,11 @@
     };
 
     window.filters.onChange = function () {
-      window.pin.removeAll();
-      window.card.remove();
-      window.pin.updateAll(window.filters.selected);
+      window.util.debounce(function () {
+        window.pin.removeAll();
+        window.card.remove();
+        window.pin.updateAll(window.filters.selected);
+      });
     };
   };
 
