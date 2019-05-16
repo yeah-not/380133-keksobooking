@@ -26,7 +26,7 @@
   };
 
   var updateFilterFromCheckbox = function (filterName, filterValue, isChecked) {
-    if (!filters[filterName]) {
+    if (!filters[filterName] && isChecked) {
       filters[filterName] = [];
     }
 
@@ -37,6 +37,11 @@
     } else if (!isChecked && filterIndex >= 0) {
       filters[filterName].splice(filterIndex, 1);
     }
+
+    if (window.util.isEmpty(filters[filterName])) {
+      delete filters[filterName];
+    }
+
   };
 
   var onFilterElementChange = function (evt) {

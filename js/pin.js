@@ -46,6 +46,31 @@
     window.pin.onDeactive();
   };
 
+  var applyFilter = function (adverts, prop, filter) {
+    var filteredAdverts = adverts.filter(function (advert) {
+      if (prop === 'price') {
+        var valuesRange = window.data.filters.priceByFilter[filter];
+        return advert.offer[prop] >= valuesRange.min && advert.offer[prop] <= valuesRange.max;
+      } else {
+        return advert.offer[prop] === filter;
+      }
+    });
+
+    return filteredAdverts;
+  };
+
+  var applyFiltersArray = function (adverts, prop, subFilters) {
+    var filteredAdverts = adverts;
+
+    subFilters.forEach(function (subFilter) {
+      filteredAdverts = filteredAdverts.filter(function (advert) {
+        return advert.offer[prop].indexOf(subFilter) >= 0;
+      });
+    });
+
+    return filteredAdverts;
+  };
+
   // Обработчики
   // ----------
   var onPinClick = function (evt, advert) {
@@ -90,10 +115,10 @@
   // ----------
   window.pin = {
     loadAll: function () {
-      // advertsData = window.data.generateAdverts(10);
-      // advertsData = window.data.generateAdverts(window.data.advertsNum);
-      // this.updateAll();
-      window.backend.load(onXHRSuccess, onXHRError);
+      advertsData = window.data.generateAdverts(window.data.advertsNum);
+      // advertsData = window.data.generateAdverts(20);
+      this.updateAll();
+      // window.backend.load(onXHRSuccess, onXHRError);
     },
     removeAll: function () {
       var pins = pinsContainer.querySelectorAll('.map__pin:not(.map__pin--main)');
@@ -104,29 +129,15 @@
     updateAll: function (filters) {
       var adverts = advertsData;
 
-      // console.log(advertsData);
-      // console.log(filters);
-
       if (filters) {
         for (var key in filters) {
           if (filters.hasOwnProperty(key)) {
             var filter = filters[key];
 
             if (Array.isArray(filter)) {
-              var subFilters = filter;
-
-              subFilters.forEach(function (subFilter) {
-                adverts = adverts.filter(function (advert) {
-                  return advert.offer[key].indexOf(subFilter) >= 0;
-                });
-              });
+              adverts = applyFiltersArray(adverts, key, filter);
             } else {
-              // console.log(adverts);
-              // console.log(filters);
-              adverts = adverts.filter(function (advert) {
-                // console.log(key, filter, advert.offer[key], advert.offer[key] === filter);
-                return advert.offer[key] === filter;
-              });
+              adverts = applyFilter(adverts, key, filter);
             }
           }
         }

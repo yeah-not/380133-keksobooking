@@ -3,7 +3,7 @@
 (function () {
   // Константы
   // ----------
-  var ADVERTS_AMOUNT = 5;
+  var ADVERTS_AMOUNT = 20;
   var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
   var TYPES = ['palace', 'flat', 'house', 'bungalo'];
   var CHECK_IN_OUT = ['12:00', '13:00', '14:00'];
@@ -35,6 +35,11 @@
     '3': ['1', '2', '3'],
     '100': ['0'],
   };
+  var PRICE_BY_FILTER = {
+    low: {min: 0, max: 10000},
+    middle: {min: 10000, max: 50000},
+    high: {min: 50000, max: Infinity},
+  };
   var LOCALE_RUS = {
     'palace': 'дворец',
     'house': 'дом',
@@ -47,18 +52,18 @@
   var generateAdvert = function (index, data) {
     var advert = {
       author: {
-        avatar: data.avatarPath + (index < 10 ? '0' : '') + (index + 1) + '.png'
+        avatar: data.avatarPath + '0' + window.util.getRandomInt(1, 8) + '.png'
       },
       offer: {
         title: window.util.getRandomElement(data.titles),
         address: '',
         price: window.util.getRandomInt(1000, 1000000),
         type: window.util.getRandomElement(data.types),
-        rooms: window.util.getRandomInt(1, 5),
-        guests: window.util.getRandomInt(1, 25),
+        rooms: window.util.getRandomInt(1, 3),
+        guests: window.util.getRandomInt(1, 3),
         checkin: window.util.getRandomElement(data.checkInOut),
         checkout: window.util.getRandomElement(data.checkInOut),
-        features: data.features.slice(1, window.util.getRandomInt(0, data.features.length)),
+        features: window.util.randomizeArray(data.features),
         description: '',
         photos: window.util.shuffleArray(data.photos)
       },
@@ -121,6 +126,9 @@
     form: {
       minPriceByType: MIN_PRICE_BY_TYPE,
       guestsByRooms: GUESTS_BY_ROOMS,
+    },
+    filters: {
+      priceByFilter: PRICE_BY_FILTER,
     },
     lang: 'ru',
     locales: {

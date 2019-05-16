@@ -22,6 +22,14 @@
     capitalizeFirstLetter: function (string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
     },
+    isEmpty: function (obj) {
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          return false;
+        }
+      }
+      return true;
+    },
     shuffleArray: function (srcArray) {
       var copiedArray = srcArray.slice();
       var destArray = [];
@@ -31,6 +39,17 @@
         var element = copiedArray.splice(randomIndex, 1)[0];
         destArray.push(element);
       }
+
+      return destArray;
+    },
+    randomizeArray: function (srcArray) {
+      var destArray = [];
+
+      srcArray.forEach(function (value) {
+        if (this.getRandomInt(0, 1)) {
+          destArray.push(value);
+        }
+      }, this);
 
       return destArray;
     },
