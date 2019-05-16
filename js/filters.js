@@ -12,6 +12,12 @@
   var updateFilterFromSelect = function (filterName, filterValue) {
     filterName = filterName.replace('housing-', '');
 
+    var filterValueInt = parseInt(filterValue, 10);
+
+    if (filterValueInt) {
+      filterValue = filterValueInt;
+    }
+
     if (filterValue === 'any') {
       delete filters[filterName];
     } else {
@@ -49,7 +55,8 @@
         break;
       default:
     }
-    console.log(filters);
+
+    window.filters.onChange();
   };
 
   // Элементы
@@ -76,7 +83,8 @@
         filterElement.disabled = true;
         filterElement.removeEventListener('change', onFilterElementChange);
       });
-    }
+    },
+    onChange: null
   };
 
 })();

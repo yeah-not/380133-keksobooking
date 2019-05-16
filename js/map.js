@@ -23,25 +23,35 @@
     window.pin.onActive = function (advert) {
       window.card.insert(advert);
     };
+
     window.pin.onDeactive = function () {
       window.card.remove();
     };
+
     window.adForm.onReset = function () {
       refreshMap(true);
       disableMap();
       window.filters.deactivate();
     };
+
     window.mainPin.onTake = function () {
       enableMap();
     };
+
     window.mainPin.onMove = function () {
       setAddressByMainPin(true);
     };
+
     window.mainPin.onPut = function () {
       refreshMap(false);
       setAddressByMainPin(true);
       window.adForm.enable();
       window.filters.activate();
+    };
+
+    window.filters.onChange = function () {
+      window.pin.removeAll();
+      window.pin.updateAll(window.filters.selected);
     };
   };
 

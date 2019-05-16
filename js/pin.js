@@ -3,20 +3,6 @@
 (function () {
   // Функции
   // ----------
-  var updateAll = function () {
-    var adverts = advertsData;
-
-    for (var key in advertFilters) {
-      if (advertFilters.hasOwnProperty(key)) {
-        adverts = adverts.filter(function (advert) {
-          return advert.offer[key] === advertFilters[key];
-        });
-      }
-    }
-
-    renderAll(adverts, window.data.advertsNum);
-  };
-
   var renderOne = function (advert, template) {
     var pin = template.cloneNode(true);
     var pinImg = pin.querySelector('img');
@@ -79,7 +65,7 @@
 
   var onXHRSuccess = function (response) {
     advertsData = response;
-    updateAll();
+    window.pin.updateAll();
   };
 
   var onXHRError = function (message) {
@@ -99,17 +85,14 @@
   // Старт программы
   // ----------
   var advertsData = [];
-  var advertFilters = {
-    type: 'flat',
-    rooms: 1,
-  };
 
   // Интерфейс
   // ----------
   window.pin = {
     loadAll: function () {
-      // var advertsData = window.data.generateAdverts(window.data.advertsNum);
-      // updateAll();
+      // advertsData = window.data.generateAdverts(10);
+      // advertsData = window.data.generateAdverts(window.data.advertsNum);
+      // this.updateAll();
       window.backend.load(onXHRSuccess, onXHRError);
     },
     removeAll: function () {
@@ -117,6 +100,39 @@
       window.util.removeElements(pins);
 
       document.removeEventListener('keydown', onEscPress);
+    },
+    updateAll: function (filters) {
+      var adverts = advertsData;
+
+      // console.log(advertsData);
+      // console.log(filters);
+
+      if (filters) {
+        for (var key in filters) {
+          if (filters.hasOwnProperty(key)) {
+            var filter = filters[key];
+
+            if (Array.isArray(filter)) {
+              var subFilters = filter;
+
+              subFilters.forEach(function (subFilter) {
+                adverts = adverts.filter(function (advert) {
+                  return advert.offer[key].indexOf(subFilter) >= 0;
+                });
+              });
+            } else {
+              // console.log(adverts);
+              // console.log(filters);
+              adverts = adverts.filter(function (advert) {
+                // console.log(key, filter, advert.offer[key], advert.offer[key] === filter);
+                return advert.offer[key] === filter;
+              });
+            }
+          }
+        }
+      }
+
+      renderAll(adverts, window.data.advertsNum);
     },
     saveDefaultPosition: function (pin) {
       var left = pin.offsetLeft;
