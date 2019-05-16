@@ -7,7 +7,7 @@
   // Константы
   // ----------
   var STATUS_SUCCESS = 200;
-  var TIMEOUT = 5000;
+  var TIMEOUT = 10000;
   var URL = 'https://js.dump.academy/keksobooking/';
   var URL_DATA = 'data/';
 

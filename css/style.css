@@ -418,6 +418,8 @@ fieldset {
           box-shadow: 0 0 2px 2px #ff6547;
 }
 
+.map__filter:disabled {cursor: default;}
+
 .map__feature {
   display: inline-block;
   overflow: hidden;
@@ -437,6 +439,8 @@ fieldset {
 
   border-radius: 3px;
 }
+
+.map__checkbox:disabled + .map__feature {cursor: default;}
 
 .map__feature--wifi {
   background-position: 2px 5px;

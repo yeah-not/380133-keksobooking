@@ -3,24 +3,43 @@
 (function () {
   // Константы
   // ----------
-  var ESC_KEYCODE = 27;
-  // var ENTER_KEYCODE = 13;
+  var KeyCode = {
+    ENTER: 13,
+    ESC: 27,
+  };
+  var DEBOUNCE_INTERVAL = 500;
+
+  // Переменные
+  // ---------------
+  var lastTimeout = null;
 
   // Интерфейс
   // ----------
   window.util = {
     // Общие
     getRandomInt: function (min, max) {
-      return Math.floor(Math.random() * (max + 1 - min)) + min;
+      return Math.floor(min + Math.random() * (max + 1 - min));
     },
     getRandomElement: function (array) {
       return array[this.getRandomInt(0, array.length - 1)];
+    },
+    getRandomProperty: function (object) {
+      var keys = Object.keys(object);
+      return object[keys[Math.floor(keys.length * Math.random())]];
     },
     getFormatedPrice: function (number) {
       return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     },
     capitalizeFirstLetter: function (string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+    isEmpty: function (obj) {
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          return false;
+        }
+      }
+      return true;
     },
     shuffleArray: function (srcArray) {
       var copiedArray = srcArray.slice();
@@ -33,6 +52,24 @@
       }
 
       return destArray;
+    },
+    randomizeArray: function (srcArray) {
+      var destArray = [];
+
+      srcArray.forEach(function (value) {
+        if (this.getRandomInt(0, 1)) {
+          destArray.push(value);
+        }
+      }, this);
+
+      return destArray;
+    },
+    debounce: function (callback) {
+      if (lastTimeout) {
+        clearTimeout(lastTimeout);
+      }
+
+      lastTimeout = setTimeout(callback, DEBOUNCE_INTERVAL);
     },
 
     // DOM-элементы
@@ -149,7 +186,7 @@
 
     // События
     isEscEvent: function (evt, action) {
-      if (evt.keyCode === ESC_KEYCODE) {
+      if (evt.keyCode === KeyCode.ESC) {
         if (typeof action === 'object') {
           var actions = action;
           for (var method in actions) {

@@ -1,9 +1,6 @@
 'use strict';
 
 (function () {
-  // Константы
-  // ----------
-
   // Функции
   // ----------
   var renderOne = function (advert, template) {
@@ -24,7 +21,6 @@
   };
 
   var renderAll = function (adverts, amount) {
-    // var adverts = window.data.generateAdverts(window.data.advertsNum);
     if (amount) {
       adverts = window.util.shuffleArray(adverts).slice(0, amount);
     }
@@ -50,6 +46,31 @@
     window.pin.onDeactive();
   };
 
+  var applyFilter = function (adverts, prop, filter) {
+    var filteredAdverts = adverts.filter(function (advert) {
+      if (prop === 'price') {
+        var valuesRange = window.data.filters.priceByFilter[filter];
+        return advert.offer[prop] >= valuesRange.min && advert.offer[prop] <= valuesRange.max;
+      } else {
+        return advert.offer[prop] === filter;
+      }
+    });
+
+    return filteredAdverts;
+  };
+
+  var applyFiltersArray = function (adverts, prop, subFilters) {
+    var filteredAdverts = adverts;
+
+    subFilters.forEach(function (subFilter) {
+      filteredAdverts = filteredAdverts.filter(function (advert) {
+        return advert.offer[prop].indexOf(subFilter) >= 0;
+      });
+    });
+
+    return filteredAdverts;
+  };
+
   // Обработчики
   // ----------
   var onPinClick = function (evt, advert) {
@@ -68,7 +89,8 @@
   };
 
   var onXHRSuccess = function (response) {
-    renderAll(response, window.data.advertsNum);
+    advertsData = response;
+    window.pin.updateAll();
   };
 
   var onXHRError = function (message) {
@@ -85,17 +107,43 @@
   var template = document.querySelector('template');
   var pinTemplate = template.content.querySelector('.map__pin');
 
+  // Старт программы
+  // ----------
+  var advertsData = [];
+
   // Интерфейс
   // ----------
   window.pin = {
     loadAll: function () {
-      window.backend.load(onXHRSuccess, onXHRError);
+      advertsData = window.data.generateAdverts(window.data.advertsNum);
+      // advertsData = window.data.generateAdverts(20);
+      this.updateAll();
+      // window.backend.load(onXHRSuccess, onXHRError);
     },
     removeAll: function () {
       var pins = pinsContainer.querySelectorAll('.map__pin:not(.map__pin--main)');
       window.util.removeElements(pins);
 
       document.removeEventListener('keydown', onEscPress);
+    },
+    updateAll: function (filters) {
+      var adverts = advertsData;
+
+      if (filters) {
+        for (var key in filters) {
+          if (filters.hasOwnProperty(key)) {
+            var filter = filters[key];
+
+            if (Array.isArray(filter)) {
+              adverts = applyFiltersArray(adverts, key, filter);
+            } else {
+              adverts = applyFilter(adverts, key, filter);
+            }
+          }
+        }
+      }
+
+      renderAll(adverts, window.data.advertsNum);
     },
     saveDefaultPosition: function (pin) {
       var left = pin.offsetLeft;
