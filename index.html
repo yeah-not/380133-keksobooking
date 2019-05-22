@@ -93,7 +93,7 @@
     <section class="notice">
       <h2 class="notice__title">Ваше объявление</h2>
 
-      <form class="ad-form ad-form--disabled" method="post" enctype="multipart/form-data" action="https://js.dump.academy/keksobooking" autocomplete="off">
+      <form class="ad-form" method="post" enctype="multipart/form-data" action="https://js.dump.academy/keksobooking" autocomplete="off">
         <fieldset class="ad-form-header">
           <legend class="ad-form-header__title">Ваша фотография (для карты)</legend>
           <div class="ad-form-header__upload">
@@ -201,7 +201,10 @@
               <input type="file" id="images" name="images" class="ad-form__input visually-hidden">
               <label for="images" class="ad-form__drop-zone">Загрузите или&nbsp;перетащите сюда фото</label>
             </div>
-            <div class="ad-form__photo"></div>
+            <!-- <div class="ad-form__photo"></div> -->
+            <div class="ad-form__photo">
+              <img src="" width="40" height="45" alt="Фотография жилья">
+            </div>
           </div>
         </fieldset>
 
@@ -267,7 +270,9 @@
         <img src="" class="popup__photo" width="45" height="40" alt="Фотография жилья">
       </div>
     </article>
-
+    <div class="ad-form__photo">
+      <img src="" width="40" height="45" alt="Фотография жилья">
+    </div>
     <button type="button" class="map__pin" style="left: 200px; top: 400px;"><img src="img/avatars/user07.png" width="40" height="40" draggable="false" alt="Метка объявления"></button>
   </template>
 

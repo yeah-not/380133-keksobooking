@@ -10,9 +10,7 @@
 
   // Функции
   // ----------
-  var chooseFile = function () {
-    var file = fileChooser.files[0];
-
+  var chooseFile = function (file) {
     if (file) {
       var fileName = file.name.toLowerCase();
 
@@ -28,41 +26,44 @@
     return file;
   };
 
-  var readFile = function (file) {
+  var readFile = function (file, previewElement) {
     if (!file) {
       return false;
     }
 
     var fileReader = new FileReader();
 
-    fileReader.addEventListener('load', onFileReaderLoad);
+    fileReader.addEventListener('load', onFileReaderLoad.bind(this, previewElement));
 
     fileReader.readAsDataURL(file);
   };
 
-  var setPreview = function (imageData) {
-    preview.src = imageData;
+  var setPreview = function (previewElement, imageData) {
+    previewElement.src = imageData;
   }
 
   // Обработчики
   // ----------
-  var onFileChooserChange = function () {
-    readFile(chooseFile());
+  var onFileChooserChange = function (previewElement, evt) {
+    readFile(chooseFile(evt.target.files[0]), previewElement);
   };
 
-  var onFileReaderLoad = function (evt) {
-    setPreview(evt.currentTarget.result);
+  var onFileReaderLoad = function (previewElement, evt) {
+    setPreview(previewElement, evt.currentTarget.result);
   };
 
   // DOM-элементы
   // ----------
-  var fileChooser = document.querySelector('.ad-form-header__input');
-  var preview = document.querySelector('.ad-form-header__preview img');
+  var avatarChooser = document.querySelector('.ad-form-header__input');
+  var avatarPreview = document.querySelector('.ad-form-header__preview img');
+
+  var photoChooser = document.querySelector('.ad-form__input');
+  var photoPreview = document.querySelector('.ad-form__photo img');
 
   // Старт
   // ----------
-  fileChooser.addEventListener('change', onFileChooserChange);
-
+  avatarChooser.addEventListener('change', onFileChooserChange.bind(this, avatarPreview));
+  photoChooser.addEventListener('change', onFileChooserChange.bind(this, photoPreview));
 
   // Интерфейс
   // ----------
