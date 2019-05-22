@@ -10,18 +10,7 @@
 
   // Функции
   // ----------
-
-  // Обработчики
-  // ----------
-
-  // DOM-элементы
-  // ----------
-  var fileChooser = document.querySelector('.ad-form-header__input');
-  var preview = document.querySelector('.ad-form-header__preview img');
-
-  // Старт
-  // ----------
-  fileChooser.addEventListener('change', function () {
+  var chooseFile = function () {
     var file = fileChooser.files[0];
 
     if (file) {
@@ -32,16 +21,47 @@
       });
     }
 
-    if (isImageFile) {
-      var fileReader = new FileReader();
-
-      fileReader.addEventListener('load', function () {
-        preview.src = fileReader.result;
-      });
-
-      fileReader.readAsDataURL(file);
+    if (!isImageFile) {
+      file = undefined;
     }
-  });
+
+    return file;
+  };
+
+  var readFile = function (file) {
+    if (!file) {
+      return false;
+    }
+
+    var fileReader = new FileReader();
+
+    fileReader.addEventListener('load', onFileReaderLoad);
+
+    fileReader.readAsDataURL(file);
+  };
+
+  var setPreview = function (imageData) {
+    preview.src = imageData;
+  }
+
+  // Обработчики
+  // ----------
+  var onFileChooserChange = function () {
+    readFile(chooseFile());
+  };
+
+  var onFileReaderLoad = function (evt) {
+    setPreview(evt.currentTarget.result);
+  };
+
+  // DOM-элементы
+  // ----------
+  var fileChooser = document.querySelector('.ad-form-header__input');
+  var preview = document.querySelector('.ad-form-header__preview img');
+
+  // Старт
+  // ----------
+  fileChooser.addEventListener('change', onFileChooserChange);
 
 
   // Интерфейс
