@@ -618,6 +618,11 @@ fieldset {
           box-shadow: 0 0 2px 2px #ff6547;
 }
 
+.ad-form-header__input:disabled + .ad-form-header__drop-zone {
+  cursor: default;
+  color: #999999;
+}
+
 .ad-form__element {
   -ms-flex-preferred-size: 25%;
       flex-basis: 25%;
@@ -849,6 +854,11 @@ fieldset {
   color: #ff5635;
   -webkit-box-shadow: 0 0 2px 2px #ff6547;
           box-shadow: 0 0 2px 2px #ff6547;
+}
+
+.ad-form__input:disabled + .ad-form__drop-zone {
+  cursor: default;
+  color: #999999;
 }
 
 .ad-form__photo {

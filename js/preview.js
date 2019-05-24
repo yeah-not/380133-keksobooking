@@ -33,41 +33,38 @@
     });
   };
 
-
-
   var setPreview = function (previewImage, imageDataURL) {
     previewImage.src = imageDataURL;
   };
 
   var renderPreview = function (previewSelector, previewContainer, imageDataURL) {
-    var previewEmpty = document.querySelector(previewSelector + ':empty');
+    var previewElement = document.querySelector(previewSelector + ':empty');
     var previewTemplate = template.content.querySelector(previewSelector);
+    var previewImage;
 
-    if (!previewEmpty) {
-      var previewElement = previewTemplate.cloneNode(true);
-      var previewImage = previewElement.querySelector('img');
-
-      previewContainer.appendChild(previewElement);
-    } else {
-      var previewElement = previewEmpty;
-      var previewImageTemplate = previewTemplate.querySelector('img');
-      var previewImage = previewImageTemplate.cloneNode();
+    if (previewElement) {
+      previewImage = previewTemplate.querySelector('img').cloneNode();
 
       previewElement.appendChild(previewImage);
+    } else {
+      previewElement = previewTemplate.cloneNode(true);
+      previewImage = previewElement.querySelector('img');
+
+      previewContainer.appendChild(previewElement);
     }
 
     setPreview(previewImage, imageDataURL);
-
   };
-
-  var renderPreviews = function () {
-
-  }
-
 
   // Обработчики
   // ----------
+  var onAvatarChooserChange = function (evt) {
+    choosePreview(evt.target.files, setPreview.bind(evt.target, avatarPreview));
+  };
 
+  var onAdPhotoChooserChange = function (evt) {
+    choosePreview(evt.target.files, renderPreview.bind(evt.target, adPhotoSelector, adPhotoContainer));
+  };
 
   // DOM-элементы
   // ----------
@@ -79,21 +76,23 @@
   var adPhotoSelector = '.ad-form__photo';
 
   var template = document.querySelector('template');
-  var adPhotoTemplate = template.content.querySelector('.ad-form__photo');
-
-  // Старт
-  // ----------
-  avatarChooser.addEventListener('change', function () {
-    choosePreview(avatarChooser.files, setPreview.bind(avatarChooser, avatarPreview));
-  });
-
-  adPhotoChooser.addEventListener('change', function () {
-    // choosePreview(adPhotoChooser.files[0], setPreview.bind(adPhotoChooser, adPhotoPreview));
-    // choosePreview(adPhotoChooser.files, renderPreview.bind(adPhotoChooser, adPhotoContainer, adPhotoTemplate));
-    choosePreview(adPhotoChooser.files, renderPreview.bind(adPhotoChooser, adPhotoSelector, adPhotoContainer));
-  });
 
   // Интерфейс
   // ----------
+  window.preview = {
+    enable: function () {
+      avatarChooser.disabled = false;
+      adPhotoChooser.disabled = false;
 
+      avatarChooser.addEventListener('change', onAvatarChooserChange);
+      adPhotoChooser.addEventListener('change', onAdPhotoChooserChange);
+    },
+    disable: function () {
+      avatarChooser.disabled = true;
+      adPhotoChooser.disabled = true;
+
+      avatarChooser.removeEventListener('change', onAvatarChooserChange);
+      adPhotoChooser.removeEventListener('change', onAdPhotoChooserChange);
+    },
+  }
 })();
