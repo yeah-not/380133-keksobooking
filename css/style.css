@@ -618,6 +618,11 @@ fieldset {
           box-shadow: 0 0 2px 2px #ff6547;
 }
 
+.ad-form-header__input:disabled + .ad-form-header__drop-zone {
+  cursor: default;
+  color: #999999;
+}
+
 .ad-form__element {
   -ms-flex-preferred-size: 25%;
       flex-basis: 25%;
@@ -851,12 +856,27 @@ fieldset {
           box-shadow: 0 0 2px 2px #ff6547;
 }
 
+.ad-form__input:disabled + .ad-form__drop-zone {
+  cursor: default;
+  color: #999999;
+}
+
 .ad-form__photo {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+
   margin-right: 10px;
   margin-bottom: 10px;
+  padding: 0 15px;
 
   width: 70px;
   height: 70px;
+
+  text-align: center;
 
   background-color: #e4e4de;
   border-radius: 5px;

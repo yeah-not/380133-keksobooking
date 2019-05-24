@@ -14,10 +14,13 @@
   // Страница
   var initMap = function () {
     disableMap();
+
     window.filters.deactivate();
+    window.adForm.init();
+    window.adForm.disable();
+    window.preview.disable();
 
     window.pin.saveDefaultPosition(mainPin);
-    window.adForm.init();
     setAddressByMainPin(false);
 
     window.pin.onActive = function (advert) {
@@ -31,7 +34,10 @@
     window.adForm.onReset = function () {
       refreshMap(true);
       disableMap();
+
       window.filters.deactivate();
+      window.preview.disable();
+      window.preview.reset();
     };
 
     window.mainPin.onTake = function () {
@@ -46,6 +52,7 @@
       refreshMap(false);
       setAddressByMainPin(true);
       window.adForm.enable();
+      window.preview.enable();
       window.filters.activate();
     };
 

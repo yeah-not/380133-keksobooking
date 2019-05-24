@@ -100,7 +100,6 @@
   window.adForm = {
     init: function () {
       window.util.initForm(adForm);
-      this.disable();
     },
     disable: function () {
       adForm.classList.add('ad-form--disabled');
