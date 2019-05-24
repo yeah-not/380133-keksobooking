@@ -10,28 +10,47 @@
 
   // Функции
   // ----------
-  var choosePreview = function (file, callback) {
-    if (file) {
-      var fileName = file.name.toLowerCase();
-      var isImageFile = IMG_FILE_TYPES.some(function (it) {
-        return fileName.endsWith(it);
-      });
-    }
+  var choosePreview = function (files, callback) {
+    var filesArr = Object.values(files);
 
-    if (isImageFile) {
-      var fileReader = new FileReader();
+    filesArr.forEach(function (file, index) {
+      if (file) {
+        var fileName = file.name.toLowerCase();
+        var isImageFile = IMG_FILE_TYPES.some(function (it) {
+          return fileName.endsWith(it);
+        });
+      }
 
-      fileReader.addEventListener('load', function () {
-        callback(fileReader.result);
-      });
+      if (isImageFile) {
+        var fileReader = new FileReader();
 
-      fileReader.readAsDataURL(file);
-    }
+        fileReader.addEventListener('load', function () {
+          callback(fileReader.result, index);
+        });
+
+        fileReader.readAsDataURL(file);
+      }
+    });
   };
 
-  var setPreview = function (previewElement, imdDataURL) {
-    previewElement.src = imdDataURL;
+
+
+  var setPreview = function (previewImage, imageDataURL) {
+    previewImage.src = imageDataURL;
   };
+
+  var renderPreview = function (previewContainer, previewTemplate, imageDataURL) {
+    var previewElement = previewTemplate.cloneNode(true);
+    var previewImage = previewElement.querySelector('img');
+
+    setPreview(previewImage, imageDataURL);
+
+    previewContainer.appendChild(previewElement);
+  };
+
+  var renderPreviews = function () {
+
+  }
 
 
   // Обработчики
@@ -45,15 +64,20 @@
 
   var adPhotoChooser = document.querySelector('.ad-form__input');
   var adPhotoPreview = document.querySelector('.ad-form__photo img');
+  var adPhotoContainer = document.querySelector('.ad-form__photo-container');
+
+  var template = document.querySelector('template');
+  var adPhotoTemplate = template.content.querySelector('.ad-form__photo');
 
   // Старт
   // ----------
   avatarChooser.addEventListener('change', function () {
-    choosePreview(avatarChooser.files[0], setPreview.bind(avatarChooser, avatarPreview));
+    choosePreview(avatarChooser.files, setPreview.bind(avatarChooser, avatarPreview));
   });
 
   adPhotoChooser.addEventListener('change', function () {
-    choosePreview(adPhotoChooser.files[0], setPreview.bind(adPhotoChooser, adPhotoPreview));
+    // choosePreview(adPhotoChooser.files[0], setPreview.bind(adPhotoChooser, adPhotoPreview));
+    choosePreview(adPhotoChooser.files, renderPreview.bind(adPhotoChooser, adPhotoContainer, adPhotoTemplate));
   });
 
   // Интерфейс
