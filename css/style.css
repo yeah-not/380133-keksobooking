@@ -872,8 +872,6 @@ fieldset {
   border-radius: 5px;
 }
 
-.ad-form__photo img[src=""] { display: none; }
-
 .ad-form__element--submit {
   -ms-flex-preferred-size: 100%;
       flex-basis: 100%;

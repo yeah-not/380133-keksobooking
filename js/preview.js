@@ -39,13 +39,25 @@
     previewImage.src = imageDataURL;
   };
 
-  var renderPreview = function (previewContainer, previewTemplate, imageDataURL) {
-    var previewElement = previewTemplate.cloneNode(true);
-    var previewImage = previewElement.querySelector('img');
+  var renderPreview = function (previewSelector, previewContainer, imageDataURL) {
+    var previewEmpty = document.querySelector(previewSelector + ':empty');
+    var previewTemplate = template.content.querySelector(previewSelector);
+
+    if (!previewEmpty) {
+      var previewElement = previewTemplate.cloneNode(true);
+      var previewImage = previewElement.querySelector('img');
+
+      previewContainer.appendChild(previewElement);
+    } else {
+      var previewElement = previewEmpty;
+      var previewImageTemplate = previewTemplate.querySelector('img');
+      var previewImage = previewImageTemplate.cloneNode();
+
+      previewElement.appendChild(previewImage);
+    }
 
     setPreview(previewImage, imageDataURL);
 
-    previewContainer.appendChild(previewElement);
   };
 
   var renderPreviews = function () {
@@ -63,8 +75,8 @@
   var avatarPreview = document.querySelector('.ad-form-header__preview img');
 
   var adPhotoChooser = document.querySelector('.ad-form__input');
-  var adPhotoPreview = document.querySelector('.ad-form__photo img');
   var adPhotoContainer = document.querySelector('.ad-form__photo-container');
+  var adPhotoSelector = '.ad-form__photo';
 
   var template = document.querySelector('template');
   var adPhotoTemplate = template.content.querySelector('.ad-form__photo');
@@ -77,7 +89,8 @@
 
   adPhotoChooser.addEventListener('change', function () {
     // choosePreview(adPhotoChooser.files[0], setPreview.bind(adPhotoChooser, adPhotoPreview));
-    choosePreview(adPhotoChooser.files, renderPreview.bind(adPhotoChooser, adPhotoContainer, adPhotoTemplate));
+    // choosePreview(adPhotoChooser.files, renderPreview.bind(adPhotoChooser, adPhotoContainer, adPhotoTemplate));
+    choosePreview(adPhotoChooser.files, renderPreview.bind(adPhotoChooser, adPhotoSelector, adPhotoContainer));
   });
 
   // Интерфейс
