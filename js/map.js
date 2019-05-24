@@ -34,7 +34,10 @@
     window.adForm.onReset = function () {
       refreshMap(true);
       disableMap();
+
       window.filters.deactivate();
+      window.preview.disable();
+      window.preview.reset();
     };
 
     window.mainPin.onTake = function () {

@@ -56,6 +56,15 @@
     setPreview(previewImage, imageDataURL);
   };
 
+  var removePreviews = function (previewContainer, previewSelector) {
+    var previewList = previewContainer.querySelectorAll(previewSelector);
+    window.util.removeElements(previewList);
+
+    var previewTemplate = template.content.querySelector(previewSelector);
+    var previewElement = previewTemplate.cloneNode();
+    previewContainer.appendChild(previewElement);
+  };
+
   // Обработчики
   // ----------
   var onAvatarChooserChange = function (evt) {
@@ -94,5 +103,9 @@
       avatarChooser.removeEventListener('change', onAvatarChooserChange);
       adPhotoChooser.removeEventListener('change', onAdPhotoChooserChange);
     },
-  }
+    reset: function () {
+      setPreview(avatarPreview, avatarChooser.dataset.initImage);
+      removePreviews(adPhotoContainer, adPhotoSelector);
+    }
+  };
 })();

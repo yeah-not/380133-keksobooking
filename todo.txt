@@ -13,8 +13,7 @@
 13. Генерация объявлений через функцию-конструктор
 14. Location через функцию-конструктор
 15. Синхронизация, как в 2017-06 ДЗ window.synchronizeFields(apartmentType, pricePerNight, ['apartment', 'bungalo', 'palace'], [1000, 0, 10000], syncValueWithMin);
-
-1. FileType через перечисление типов 'image/png'.
-2. Универсальный модуль для использования в разных местах
-3. Обаботка ошибок.
-4. Очистка при reset
+16. модуль Preview
+    -  FileType через перечисление типов 'image/png'
+    - preview > previews, именование функций
+    - перенести вызовы модуля из Map в adForm
