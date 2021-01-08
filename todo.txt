@@ -17,3 +17,4 @@
     -  FileType через перечисление типов 'image/png'
     - preview > previews, именование функций
     - перенести вызовы модуля из Map в adForm
+    - Drag'n'Drop
